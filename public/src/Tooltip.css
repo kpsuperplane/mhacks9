@@ -1,0 +1,40 @@
+.tooltip{
+    padding:1em;
+    background:#FFF;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+    z-index:10;
+    position: absolute;
+    border:1px solid #EEE;
+    border-radius:0.5em;
+    width:450px;
+    top:10px;
+    left:0;
+}
+.tooltip img{
+    display:block;
+    width:100%;
+}
+.tooltip .title{
+    margin:0;
+}
+.tooltip-container{
+    z-index:-10;
+    opacity:0;
+    transform: scale(0.5);
+    position: absolute;
+    transition:all 150ms;
+}
+.tooltip-container.visible{
+    z-index:10;
+    transform: scale(1);
+    opacity:1;
+}
+.tooltip-arrow{
+  width: 0; 
+  height: 0; 
+  top: 2px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  position:absolute;
+  border-bottom: 8px solid #EEE;
+}

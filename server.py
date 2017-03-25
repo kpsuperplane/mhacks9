@@ -6,11 +6,12 @@ import speech_recognition as sr
 import configparser
 import time
 
-app = Flask(__name__, static_url_path='/public/public', template_folder='public/public')
+app = Flask(__name__, static_url_path='/public/build', template_folder='public/build')
 CORS(app)
 
 config = configparser.ConfigParser()
 config.read('secrets.cfg')
+current_path = os.path.dirname(os.path.abspath(__file__))
 upload_path = config['mhacks']['path']
 domain = config['mhacks']['domain']
 wit = config['mhacks']['wit']
@@ -28,6 +29,14 @@ r.dynamic_energy_threshold = True
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/static/js/<path:filename>')
+def js(filename):
+    return send_from_directory(os.path.join(current_path, 'public/build/static/js'), filename)
+
+@app.route('/static/css/<path:filename>')
+def css(filename):
+    return send_from_directory(os.path.join(current_path, 'public/build/static/css'), filename)
 
 @app.route('/files/<path:filename>')
 def download_file(filename):
