@@ -49,6 +49,7 @@ def audio():
             file.save(webm_path)
             os.system("ffmpeg -i {} -ar 16000 -ac 1 {}".format(webm_path, flac_path))
             with sr.AudioFile(flac_path) as source:
+                r.adjust_for_ambient_noise(source, duration = 1)
                 audio = r.record(source)
                 try:
                     return jsonify({
