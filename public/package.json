@@ -44,8 +44,10 @@
   },
   "dependencies": {
     "browserify": "^14.1.0",
+    "diff": "^3.2.0",
     "firebase": "^3.7.3",
     "htmlparser": "^1.7.7",
+    "interval-tree2": "^1.1.0",
     "react": "^15.4.2",
     "react-audio-recorder": "^0.1.0",
     "react-dom": "^15.4.2",

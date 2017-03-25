@@ -11,9 +11,7 @@ import 'react-quill/dist/quill.core.css';
 class App extends Component {
   constructor(){
     super();
-    this.state = {
-      command: "start"
-    };
+    this.deltas = [];
     this.onChange = this.onChange.bind(this);
 
     var config = {
@@ -24,9 +22,6 @@ class App extends Component {
     firebase.initializeApp(config);
     this.database = firebase.database();
     this.session = localStorage.getItem("session") || (localStorage.setItem("session", (new Date()).getTime()), localStorage.getItem("session"));
-    this.database.ref("sessions/"+this.session).on('value', function (snapshot) {
-      snapshot = snapshot || [{ref: null, content: "<p>Start typing here...</p>"}];
-    });
 
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
@@ -40,28 +35,34 @@ class App extends Component {
 
   }
 
-  parseContent(content){
-    const splitter = document.createElement('div');
-    const text = splitter.innerHTML = content;
-    const parts = splitter.children;
-    console.log(parts);
+  componentDidMount(){
+    const editor = this.refs.editor.getEditor();
+    this.database.ref("sessions/"+this.session).on('value', function (snapshot) {
+      const data = snapshot.val() || {recordings: [], content: []};
+      editor.setContents(data.content);
+    });
+  }
+
+  stopTyping(content){
+    this.database.ref("sessions/"+this.session+"/content").set(content.ops);
+    this.recorder.stop();
+    this.deltas = [];
+    this.timeout = null;
   }
   
   onChange(content, delta, source, editor){
-    const {recorder, timeout, parseContent} = this;
+    if(source !== 'user') return;
+    this.deltas.push(delta.ops);
+    const {recorder, timeout} = this;
     const ctx = this;
     if(timeout === null) recorder.start();
     if(timeout !== null) clearTimeout(timeout);
-    this.timeout = setTimeout(() => {
-      recorder.stop();
-      parseContent(content);
-      ctx.timeout = null;
-    }, 1000);
+    this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
   }
   render() {
     return (
       <div className="app">
-        <ReactQuill onChange={this.onChange} theme="snow"/>
+        <ReactQuill ref="editor" onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
       </div>
     );
   }
