@@ -1,0 +1,13 @@
+.indicator{
+    position:absolute;
+    height:1px;
+    width: 3px;
+    background: #AAA;
+}
+.indicator.current{
+    background: #efa904;
+    background: -moz-linear-gradient(left, #efa904 0%, #f47200 100%);
+    background: -webkit-linear-gradient(left, #efa904 0%,#f47200 100%);
+    background: linear-gradient(to right, #efa904 0%,#f47200 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efa904', endColorstr='#f47200',GradientType=1 );
+}
