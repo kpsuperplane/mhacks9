@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import ReactQuill from "react-quill";
 import WaveformData from "waveform-data";
 import Tooltip from "./Tooltip";
+import Highlight from "./Highlight";
 import * as firebase from "firebase";
 import request from "superagent";
 import './App.css';
 import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.core.css';
+import Login from './login.js'
 
 class App extends Component {
   constructor(){
@@ -14,10 +16,13 @@ class App extends Component {
 
     this.state = {
       selected: null,
+      editor: null,
+      curRecordIndex: 0,
       selectedPosition: {x:0, y:0}
     }
 
     this.deltas = [];
+    this.lastIndex = 0;
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
 
@@ -41,6 +46,7 @@ class App extends Component {
   }
 
   componentDidMount(){
+    this.setState({editor: this.refs.editor.getEditor()});
     const editor = this.refs.editor.getEditor();
     this.database.ref("sessions/"+this.session).once('value').then(function (snapshot) {
       const data = snapshot.val() || {recordings: [], content: []};
@@ -49,10 +55,14 @@ class App extends Component {
   }
 
   stopTyping(content){
+    if(this.timeout !== null) clearTimeout(this.timeout);
     this.database.ref("sessions/"+this.session+"/content").set(content.ops);
-    this.recorder.stop();
+    if(this.recorder.state === "recording") this.recorder.stop();
+    const curIndex = this.refs.editor.getEditor().getSelection().index;
     this.deltas = [];
+    this.lastIndex = curIndex;
     this.timeout = null;
+    this.setState({curRecordIndex: curIndex});
   }
   
   onChange(content, delta, source, editor){
@@ -62,10 +72,12 @@ class App extends Component {
     const ctx = this;
     if(timeout === null) recorder.start();
     if(timeout !== null) clearTimeout(timeout);
+    this.lastIndex = this.refs.editor.getEditor().getSelection().index;
     this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
   }
 
   onChangeSelection(range, source, editor){
+    if(range && Math.abs(this.lastIndex - range.index) > 10) this.stopTyping(editor.getContents());
     if(range && range.length > 1){
       const content = editor.getText(range.index, range.length);
       const location = editor.getBounds(range.index, range.length);
@@ -80,11 +92,13 @@ class App extends Component {
     return (
       <div className="app">
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
+        <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>
-
-        </div>
+	<Login/>
+      </div>
     )
   }
 }
 
 export default App;
+
