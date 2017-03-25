@@ -29,6 +29,14 @@ r.dynamic_energy_threshold = True
 def index():
     return render_template('index.html')
 
+@app.route('/static/js/<path:filename>')
+def js(filename):
+    return send_from_directory('/public/build/static/js', filename)
+
+@app.route('/static/css/<path:filename>')
+def css(filename):
+    return send_from_directory('/public/build/static/css', filename)
+
 @app.route('/files/<path:filename>')
 def download_file(filename):
     return send_from_directory(upload_path, filename)
