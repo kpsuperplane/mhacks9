@@ -26,13 +26,6 @@ class App extends Component {
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
 
-    var config = {
-      apiKey: "c5d2c8f090c4701209470a51edb17208b4b40fec",
-      authDomain: "mhacks9-162605.firebaseapp.com",
-      databaseURL: "https://mhacks9-162605.firebaseio.com"
-    };
-    firebase.initializeApp(config);
-
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
