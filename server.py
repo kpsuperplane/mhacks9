@@ -48,39 +48,43 @@ def audio():
             flac_path = os.path.join(upload_path, filename + ".flac")
             file.save(webm_path)
             os.system("ffmpeg -i {} -ar 16000 -ac 1 {}".format(webm_path, flac_path))
-            with sr.AudioFile(flac_path) as source:
-                r.adjust_for_ambient_noise(source, duration = 1)
-                audio = r.record(source)
-                try:
-                    return jsonify({
-                        "webm_path": domain + "/files/" + filename + ".webm",
-                        "flac_path": domain + "/files/" + filename + ".flac",
-                        "transcripts": {
-                            # "wit": r.recognize_wit(audio, wit),
-                            # "ibm": r.recognize_ibm(audio, ibm_username, ibm_password, language="en-US"),
-                            # "bing": r.recognize_bing(audio, microsoft, language="en-US"),
-                            # "houndify": r.recognize_houndify(audio, houndify_id, houndify_key),
-                            # "google": r.recognize_google_cloud(audio, credentials_json=google_credentials, language="en-US"),
-                            "sphinx": r.recognize_sphinx(audio, language="en-US")
-                        }
-                    })
-                except sr.UnknownValueError:
-                    return jsonify({
-                        "webm_path": domain + "/files/" + filename + ".webm",
-                        "flac_path": domain + "/files/" + filename + ".flac",
-                        "transcripts": {
-                            "error": "speech is unintelligible"
-                        }
-                    })
-                except Exception as e:
-                    print(e)
-                    return jsonify({
-                        "webm_path": domain + "/files/" + filename + ".webm",
-                        "flac_path": domain + "/files/" + filename + ".flac",
-                        "transcripts": {
-                            "error": "speech is unintelligible"
-                        }
-                    })
+            # with sr.AudioFile(flac_path) as source:
+                # r.adjust_for_ambient_noise(source, duration = 1)
+                # audio = r.record(source)
+                # try:
+                    # return jsonify({
+                        # "webm_path": domain + "/files/" + filename + ".webm",
+                        # "flac_path": domain + "/files/" + filename + ".flac",
+                        # "transcripts": {
+                            # # "wit": r.recognize_wit(audio, wit),
+                            # # "ibm": r.recognize_ibm(audio, ibm_username, ibm_password, language="en-US"),
+                            # # "bing": r.recognize_bing(audio, microsoft, language="en-US"),
+                            # # "houndify": r.recognize_houndify(audio, houndify_id, houndify_key),
+                            # # "google": r.recognize_google_cloud(audio, credentials_json=google_credentials, language="en-US"),
+                            # "sphinx": r.recognize_sphinx(audio, language="en-US")
+                        # }
+                    # })
+                # except sr.UnknownValueError:
+                    # return jsonify({
+                        # "webm_path": domain + "/files/" + filename + ".webm",
+                        # "flac_path": domain + "/files/" + filename + ".flac",
+                        # "transcripts": {
+                            # "error": "speech is unintelligible"
+                        # }
+                    # })
+                # except Exception as e:
+                    # print(e)
+                    # return jsonify({
+                        # "webm_path": domain + "/files/" + filename + ".webm",
+                        # "flac_path": domain + "/files/" + filename + ".flac",
+                        # "transcripts": {
+                            # "error": "speech is unintelligible"
+                        # }
+                    # })
+            return jsonify({
+                "webm_path": domain + "/files/" + filename + ".webm",
+                "flac_path": domain + "/files/" + filename + ".flac"
+            })
         else:
             return 'No file'
 if __name__ == '__main__':
