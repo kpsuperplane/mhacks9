@@ -41,8 +41,8 @@ def audio():
             os.system("ffmpeg -i {} -ar 16000 -ac 1 {}".format(filepath, outputpath))
             with sr.AudioFile(outputpath) as source:
                 audio = r.record(source)
-                # print(r.recognize_wit(audio, wit))
-                return r.recognize_houndify(audio, houndify_id, houndify_key)
+                return r.recognize_wit(audio, wit)
+                # return r.recognize_houndify(audio, houndify_id, houndify_key)
         else:
             return 'No file upload 3'
 if __name__ == '__main__':
