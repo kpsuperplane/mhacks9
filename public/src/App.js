@@ -31,8 +31,6 @@ class App extends Component {
       databaseURL: "https://mhacks9-162605.firebaseio.com"
     };
     firebase.initializeApp(config);
-    this.database = firebase.database();
-    this.session = localStorage.getItem("session") || (localStorage.setItem("session", (new Date()).getTime()), localStorage.getItem("session"));
 
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
@@ -86,6 +84,7 @@ class App extends Component {
     }else{
       if(this.state.selected != null) this.setState({selected: null});
     }
+
   }
 
   render() {
@@ -94,8 +93,9 @@ class App extends Component {
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>
-      </div>
-    );
+
+        </div>
+    )
   }
 }
 
