@@ -18,6 +18,7 @@ houndify_id = config['mhacks']['houndify_id']
 houndify_key = config['mhacks']['houndify_key']
 ibm_username = config['mhacks']['ibm_username']
 ibm_password = config['mhacks']['ibm_password']
+microsoft = config['mhacks']['microsoft']
 
 r = sr.Recognizer()
 r.energy_threshold = 4000
@@ -53,7 +54,8 @@ def audio():
                     "flac_path": domain + "/files/" + filename + ".flac",
                     "transcripts": {
                         "wit": r.recognize_wit(audio, wit),
-                        "ibm": r.recognize_ibm(audio, ibm_username, ibm_password) #,
+                        "ibm": r.recognize_ibm(audio, ibm_username, ibm_password, language="en-US"),
+                        "bing": r.recognize_bing(audio, microsoft, language="en-US") #,
                       # "houndify": r.recognize_houndify(audio, houndify_id, houndify_key)
                     }
                 })
