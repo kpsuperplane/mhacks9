@@ -29,7 +29,23 @@ class App extends Component {
     firebase.initializeApp(config);
     this.database = firebase.database();
     this.session = localStorage.getItem("session") || (localStorage.setItem("session", (new Date()).getTime()), localStorage.getItem("session"));
-
+    var provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider).then(function(result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      var token = result.credential.accessToken;
+      // The signed-in user info.
+      var user = result.user;
+      // ...
+    }).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+      // ...
+    });
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
@@ -75,6 +91,7 @@ class App extends Component {
     }else{
       if(this.state.selected != null) this.setState({selected: null});
     }
+
   }
 
   render() {
@@ -82,8 +99,8 @@ class App extends Component {
       <div className="app">
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
         <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>
-      </div>
-    );
+        </div>
+    )
   }
 }
 
