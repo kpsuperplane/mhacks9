@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactQuill from "react-quill";
-import * as htmlparser from "htmlparser";
 import WaveformData from "waveform-data";
+import Tooltip from "./Tooltip";
 import * as firebase from "firebase";
 import request from "superagent";
 import './App.css';
@@ -11,8 +11,15 @@ import 'react-quill/dist/quill.core.css';
 class App extends Component {
   constructor(){
     super();
+
+    this.state = {
+      selected: null,
+      selectedPosition: {x:0, y:0}
+    }
+
     this.deltas = [];
     this.onChange = this.onChange.bind(this);
+    this.onChangeSelection = this.onChangeSelection.bind(this);
 
     var config = {
       apiKey: "c5d2c8f090c4701209470a51edb17208b4b40fec",
@@ -59,11 +66,22 @@ class App extends Component {
     if(timeout !== null) clearTimeout(timeout);
     this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
   }
-  
+
+  onChangeSelection(range, source, editor){
+    if(range && range.length > 1){
+      const content = editor.getText(range.index, range.length);
+      const location = editor.getBounds(range.index, range.length);
+      this.setState({selected: content, selectedPosition: {y: location.top + location.height, x: location.left + location.width/2}});
+    }else{
+      if(this.state.selected != null) this.setState({selected: null});
+    }
+  }
+
   render() {
     return (
       <div className="app">
-        <ReactQuill ref="editor" onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
+        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
+        <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>
       </div>
     );
   }
