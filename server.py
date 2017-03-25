@@ -3,6 +3,7 @@ from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
 import speech_recognition as sr
 import configparser
+import time
 
 app = Flask(__name__, static_url_path='/public/build', template_folder='public/build')
 
@@ -33,9 +34,9 @@ def audio():
         if file:
             filename = secure_filename(file.filename)
             filepath = os.path.join(upload_path, filename)
-            outputpath = os.path.join(upload_path, filename + "-o.flac")
+            outputpath = os.path.join(upload_path, str(time.time()) + ".flac")
             file.save(filepath)
-            os.system("ffmpeg -ss 200 -t 15 -i " + filepath + " " + outputpath)
+            os.system("ffmpeg -i {} -ar 16000 -ac 1 {}".format(filepath, outputpath))
             with sr.AudioFile(outputpath) as source:
                 audio = r.record(source)
                 # print(r.recognize_wit(audio, wit))
