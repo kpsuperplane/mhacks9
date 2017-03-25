@@ -8,7 +8,7 @@ import request from "superagent";
 import './App.css';
 import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.core.css';
-import Login from './login.js'
+import Login from './Login.js'
 
 class App extends Component {
   constructor(){

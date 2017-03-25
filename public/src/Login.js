@@ -8,6 +8,7 @@ export default class Login extends Component {
 		firebase.auth().signInWithPopup(provider).then(function(result) {
 			var token = result.credential.accessToken;
 			var user = result.user;
+			console.log(user);
 		}).catch(function(error) {
 			console.error(error);
 		});
@@ -15,7 +16,7 @@ export default class Login extends Component {
 
 	render () {
 		return (
-			<button type="submit" onclick={() => this.handleClick()} className="btn btn-primary">Login</button>
+			<button type="submit" onClick={() => this.handleClick()} className="btn btn-primary">Login</button>
 		)
 	}
 }
