@@ -62,7 +62,7 @@ def audio():
                           # "google": r.recognize_google_cloud(audio, credentials_json=google_credentials, language="en-US")
                         }
                     })
-                except speech_recognition.UnknownValueError:
+                except sr.UnknownValueError:
                     return jsonify({
                         "webm_path": domain + "/files/" + filename + ".webm",
                         "flac_path": domain + "/files/" + filename + ".flac",
