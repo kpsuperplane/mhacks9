@@ -36,7 +36,7 @@ def js(filename):
 
 @app.route('/static/css/<path:filename>')
 def css(filename):
-    return send_from_directory(os.path.join(current_path, '/public/build/static/css'), filename)
+    return send_from_directory(os.path.join(current_path, 'public/build/static/css'), filename)
 
 @app.route('/files/<path:filename>')
 def download_file(filename):
