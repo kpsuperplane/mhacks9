@@ -15,6 +15,8 @@ upload_path = config['mhacks']['path']
 wit = config['mhacks']['wit']
 houndify_id = config['mhacks']['houndify_id']
 houndify_key = config['mhacks']['houndify_key']
+ibm_username = config['mhacks']['ibm_username']
+ibm_password = config['mhacks']['ibm_password']
 
 r = sr.Recognizer()
 r.energy_threshold = 4000
@@ -41,7 +43,7 @@ def audio():
             os.system("ffmpeg -i {} -ar 16000 -ac 1 {}".format(filepath, outputpath))
             with sr.AudioFile(outputpath) as source:
                 audio = r.record(source)
-                return r.recognize_wit(audio, wit)
+                return r.recognize_wit(audio, wit) + "\n" + r.recognize_ibm(audio, ibm_username, ibm_password)
                 # return r.recognize_houndify(audio, houndify_id, houndify_key)
         else:
             return 'No file upload 3'
