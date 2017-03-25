@@ -37,7 +37,7 @@ class App extends Component {
 
   componentDidMount(){
     const editor = this.refs.editor.getEditor();
-    this.database.ref("sessions/"+this.session).on('value', function (snapshot) {
+    this.database.ref("sessions/"+this.session).once('value').then(function (snapshot) {
       const data = snapshot.val() || {recordings: [], content: []};
       editor.setContents(data.content);
     });
@@ -59,6 +59,7 @@ class App extends Component {
     if(timeout !== null) clearTimeout(timeout);
     this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
   }
+  
   render() {
     return (
       <div className="app">
