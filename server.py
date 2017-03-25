@@ -1,11 +1,13 @@
 import os
 from flask import Flask, render_template, request
+from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 import speech_recognition as sr
 import configparser
 import time
 
 app = Flask(__name__, static_url_path='/public/build', template_folder='public/build')
+CORS(app)
 
 config = configparser.ConfigParser()
 config.read('secrets.cfg')
