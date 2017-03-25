@@ -33,8 +33,10 @@ def audio():
         if file:
             filename = secure_filename(file.filename)
             filepath = os.path.join(upload_path, filename)
+            outputpath = os.path.join(upload_path, "o-" + filename)
             file.save(filepath)
-            with sr.AudioFile(filepath) as source:
+            os.system("ffmpeg -ss 200 -t 15 -i " + filepath + " " + outputpath)
+            with sr.AudioFile(outputpath) as source:
                 audio = r.record(source)
                 # print(r.recognize_wit(audio, wit))
                 return r.recognize_houndify(audio, houndify_id, houndify_key)
