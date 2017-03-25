@@ -19,6 +19,7 @@ houndify_key = config['mhacks']['houndify_key']
 ibm_username = config['mhacks']['ibm_username']
 ibm_password = config['mhacks']['ibm_password']
 microsoft = config['mhacks']['microsoft']
+google_credentials = open('google_credentials.json', 'r').read()
 
 r = sr.Recognizer()
 r.energy_threshold = 4000
@@ -56,7 +57,8 @@ def audio():
                         "wit": r.recognize_wit(audio, wit),
                         "ibm": r.recognize_ibm(audio, ibm_username, ibm_password, language="en-US"),
                         "bing": r.recognize_bing(audio, microsoft, language="en-US") #,
-                      # "houndify": r.recognize_houndify(audio, houndify_id, houndify_key)
+                      # "houndify": r.recognize_houndify(audio, houndify_id, houndify_key) #,
+                      # "google": r.recognize_google_cloud(audio, credentials_json=google_credentials, language="en-US")
                     }
                 })
         else:

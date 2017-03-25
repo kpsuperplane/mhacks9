@@ -94,4 +94,5 @@ ENV/
 
 # General project settings
 secrets.cfg
+google_credentials.json
 files/
