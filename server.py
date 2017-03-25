@@ -38,6 +38,10 @@ def js(filename):
 def css(filename):
     return send_from_directory(os.path.join(current_path, 'public/build/static/css'), filename)
 
+@app.route('/static/media/<path:filename>')
+def css(filename):
+    return send_from_directory(os.path.join(current_path, 'public/build/static/media'), filename)
+
 @app.route('/files/<path:filename>')
 def download_file(filename):
     return send_from_directory(upload_path, filename)
