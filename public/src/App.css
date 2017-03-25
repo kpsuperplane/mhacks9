@@ -18,6 +18,12 @@
   font-size: large;
 }
 
+.ql-container {
+  margin: auto !important;
+  width: 50%;
+  border: none !important;
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
