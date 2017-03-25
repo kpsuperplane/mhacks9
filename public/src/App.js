@@ -25,6 +25,12 @@ class App extends Component {
     this.lastIndex = 0;
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
+    
+    firebase.initializeApp({
+        apiKey: "AIzaSyCze4etK0LSwjFrwjKtJyMIIcLBPdIi9mw",
+        databaseURL: "mhacks9-162605.firebaseapp.com",
+        authDomain: "https://mhacks9-162605.firebaseio.com"
+    });
 
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
