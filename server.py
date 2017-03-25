@@ -39,7 +39,7 @@ def css(filename):
     return send_from_directory(os.path.join(current_path, 'public/build/static/css'), filename)
 
 @app.route('/static/media/<path:filename>')
-def css(filename):
+def media(filename):
     return send_from_directory(os.path.join(current_path, 'public/build/static/media'), filename)
 
 @app.route('/files/<path:filename>')
