@@ -33,7 +33,7 @@ def audio():
         if file:
             filename = secure_filename(file.filename)
             filepath = os.path.join(upload_path, filename)
-            outputpath = os.path.join(upload_path, "o-" + filename)
+            outputpath = os.path.join(upload_path, filename + "-o.flac")
             file.save(filepath)
             os.system("ffmpeg -ss 200 -t 15 -i " + filepath + " " + outputpath)
             with sr.AudioFile(outputpath) as source:
