@@ -6,7 +6,7 @@ import speech_recognition as sr
 import configparser
 import time
 
-app = Flask(__name__, static_url_path='/public/public', template_folder='public/public')
+app = Flask(__name__, static_url_path='/public/build', template_folder='public/build')
 CORS(app)
 
 config = configparser.ConfigParser()
