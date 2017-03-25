@@ -57,9 +57,10 @@ def audio():
                         "transcripts": {
                             # "wit": r.recognize_wit(audio, wit),
                             # "ibm": r.recognize_ibm(audio, ibm_username, ibm_password, language="en-US"),
-                            "bing": r.recognize_bing(audio, microsoft, language="en-US") #,
-                          # "houndify": r.recognize_houndify(audio, houndify_id, houndify_key) #,
-                          # "google": r.recognize_google_cloud(audio, credentials_json=google_credentials, language="en-US")
+                            # "bing": r.recognize_bing(audio, microsoft, language="en-US"),
+                            # "houndify": r.recognize_houndify(audio, houndify_id, houndify_key),
+                            # "google": r.recognize_google_cloud(audio, credentials_json=google_credentials, language="en-US"),
+                            "sphinx": r.recognize_sphinx(audio, language="en-US")
                         }
                     })
                 except sr.UnknownValueError:
