@@ -50,17 +50,35 @@ def audio():
             os.system("ffmpeg -i {} -ar 16000 -ac 1 {}".format(webm_path, flac_path))
             with sr.AudioFile(flac_path) as source:
                 audio = r.record(source)
-                return jsonify({
-                    "webm_path": domain + "/files/" + filename + ".webm",
-                    "flac_path": domain + "/files/" + filename + ".flac",
-                    "transcripts": {
-                        "wit": r.recognize_wit(audio, wit),
-                        "ibm": r.recognize_ibm(audio, ibm_username, ibm_password, language="en-US"),
-                        "bing": r.recognize_bing(audio, microsoft, language="en-US") #,
-                      # "houndify": r.recognize_houndify(audio, houndify_id, houndify_key) #,
-                      # "google": r.recognize_google_cloud(audio, credentials_json=google_credentials, language="en-US")
-                    }
-                })
+                try:
+                    return jsonify({
+                        "webm_path": domain + "/files/" + filename + ".webm",
+                        "flac_path": domain + "/files/" + filename + ".flac",
+                        "transcripts": {
+                            "wit": r.recognize_wit(audio, wit),
+                            "ibm": r.recognize_ibm(audio, ibm_username, ibm_password, language="en-US"),
+                            "bing": r.recognize_bing(audio, microsoft, language="en-US") #,
+                          # "houndify": r.recognize_houndify(audio, houndify_id, houndify_key) #,
+                          # "google": r.recognize_google_cloud(audio, credentials_json=google_credentials, language="en-US")
+                        }
+                    })
+                except speech_recognition.UnknownValueError:
+                    return jsonify({
+                        "webm_path": domain + "/files/" + filename + ".webm",
+                        "flac_path": domain + "/files/" + filename + ".flac",
+                        "transcripts": {
+                            "error": "speech is unintelligible"
+                        }
+                    })
+                except Exception as e:
+                    print(e)
+                    return jsonify({
+                        "webm_path": domain + "/files/" + filename + ".webm",
+                        "flac_path": domain + "/files/" + filename + ".flac",
+                        "transcripts": {
+                            "error": "speech is unintelligible"
+                        }
+                    })
         else:
             return 'No file'
 if __name__ == '__main__':
