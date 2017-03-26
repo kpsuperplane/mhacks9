@@ -6,12 +6,12 @@ import request from "superagent";
 class App extends Component {
 
     wolframRequest(query, callback) {
-      request.get("https://api.wolframalpha.com/v2/simple")
+      request.get("http://api.wolframalpha.com/v2/query")
         .query({
-          input: "food",
-          appid: "WPHVGV-P8YW5TGLQX",
+          input: "Hillary Clinton",
+          output: 'json',
           format: "image,plaintext",
-          output: 'xml'
+          appid: "WPHVGV-P8YW5TGLQX",
         })
         .end(callback);
     }
@@ -22,7 +22,7 @@ class App extends Component {
     const containerLeft = Math.min(Math.max(this.props.position.x - 225, 10), window.outerWidth - 235);
 
     this.wolframRequest(this.props.content, (err, res) => {
-      console.log(res);
+      console.log(res)  
     });
 
 
