@@ -322,7 +322,6 @@ add_range(first, last, video){
       </form>
       </div>    );
   }
->>>>>>> 74b385e854e727ef976db004010d5b5c5c4ce0c2
 }
 
 export default Editor;
