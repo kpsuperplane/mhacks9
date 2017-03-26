@@ -19,7 +19,7 @@ export default class Login extends Component {
 	render () {
 		return (
 			<div className="container login">
-				<h1>MHacks 9</h1>
+				<h1>Recap</h1>
 				<h5>Remember Everything<sup>TM</sup></h5>
 				<button type="submit" onClick={() => this.handleClick()} className="button"><Google /><span> LOGIN WITH GOOGLE</span></button>
 			</div>
