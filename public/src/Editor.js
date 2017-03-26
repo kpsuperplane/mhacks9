@@ -14,6 +14,9 @@ import ChangeMode from './ChangeMode.js';
 import Record from "react-icons/lib/md/adjust";
 import RecordFill from "react-icons/lib/md/lens";
 
+import ReactAudioPlayer from 'react-audio-player';
+
+
 class Editor extends Component {
   constructor(props){
     super(props);
@@ -236,7 +239,6 @@ add_range(first, last, video){
 }
 
 
-
   onResize(){
     const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
     const editorContainer = document.getElementsByClassName('ql-editor')[0];
@@ -311,6 +313,7 @@ add_range(first, last, video){
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
 	{this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
+
         <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
 
       <form onSubmit={this.handleSubmit}>
