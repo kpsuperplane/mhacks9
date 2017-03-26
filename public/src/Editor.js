@@ -81,7 +81,6 @@ class Editor extends Component {
         //console.log(ctx.audio_segments);
         //console.log(this.refs.editor.getEditor().getContents());
       });
-      new Audio(window.URL.createObjectURL(e.data)).play();
     }
   });
   this.timeout = null;
