@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import * as firebase from 'firebase';
+import './Documents.css';
+import './Components.css';
 
 export default class Documents extends Component {
 	constructor(){
@@ -20,10 +22,10 @@ export default class Documents extends Component {
 			<div>
 				{
 					Object.keys(this.state.documentsList).map(function(key, index) {
-						return <p key={key} onClick={() => load(key)}>{key}</p>
+						return <div key={key} onClick={() => load(key)}>{key}</div>
 					})
 				}
-				<p onClick={() => load("new")}>new</p>
+				<button class="button" onClick={() => load("new")}>New</button>
 			</div>
 		)
 	}
