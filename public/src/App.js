@@ -34,6 +34,9 @@ class App extends Component {
     load(key) {
 	this.setState({ session: key });
     }
+    exit() {
+	this.setState({ session: null });
+    }
     render() {
         let view = null;
         switch(this.state.signedIn){
@@ -41,7 +44,7 @@ class App extends Component {
                 view = <Login />;
                 break;
             case true:
-                view = this.state.session ? <Editor session={this.state.session} /> : <Documents load={this.load.bind(this)} />;
+                view = this.state.session ? <Editor exit={this.exit.bind(this)} session={this.state.session} /> : <Documents load={this.load.bind(this)} />;
                 break;
         }
         return <div className="app">{view}</div>;

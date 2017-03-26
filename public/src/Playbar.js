@@ -23,7 +23,9 @@ class Playbar extends Component {
         }
         let lines = [];
         const textLength = editor.getLength();
-
+        if(this.props.end != null){
+            lines.push(<button className="toggle-play"></button>)
+        }
         while(true){
             const firstPosition = editor.getBounds(index, 0);
             while(startIndexPosition.top <= lastTop && index < textLength){
