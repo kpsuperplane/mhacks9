@@ -1,0 +1,11 @@
+html{
+  padding: 20px;
+}
+.doc{
+    padding: 5px;
+    margin: 10px; 
+}
+.boop{
+        border: solid grey 1px;
+        padding: 5px;
+}

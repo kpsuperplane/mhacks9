@@ -2,9 +2,43 @@
     position:absolute;
     height:3px;
     width: 3px;
+    z-index:5;
     border-radius:1.5px;
     background: #AAA;
     transition: all 150ms;
+}
+.toggle-play{
+    position:absolute;
+    font-size:0.8em;
+    padding:0em;
+    left:0;
+    top:0;
+    border:1px solid #09A7DB;
+    transition:all 150ms;
+    background:#FFF;
+    cursor:pointer;
+    border-radius:100%;
+    width:2em;
+    height:2em;
+    margin-top:-1em;
+    transform:scale(0.5);
+    z-index:11;
+    margin-left:-1em;
+    opacity:0.4;
+}
+.toggle-play:focus{
+    outline:none;
+}
+.toggle-play:hover{
+    background:#09A7DB;
+    color:#FFF;
+}
+.indicator:hover .toggle-play{
+    transform:scale(0.8);
+    opacity:1;
+}
+.indicator:not(.current):hover{
+    background:#09A7DB;
 }
 .indicator.current{
     background: #efa904;

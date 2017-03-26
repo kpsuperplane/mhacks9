@@ -14,6 +14,9 @@ import ChangeMode from './ChangeMode.js';
 import Record from "react-icons/lib/md/adjust";
 import RecordFill from "react-icons/lib/md/lens";
 
+import ReactAudioPlayer from 'react-audio-player';
+
+
 class Editor extends Component {
   constructor(props){
     super(props);
@@ -105,7 +108,7 @@ stopTyping(content){
   }
   const curIndex = this.refs.editor.getEditor().getSelection().index;
   if(this.deltas.length > 0){
-
+    const range = [this.state.curRecordIndex, curIndex];
     const ctx = this;
     this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
       var recordings = snapshot.val();
@@ -235,17 +238,16 @@ add_range(first, last, video){
 }
 
 
-
-onResize(){
-  const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
-  const editorContainer = document.getElementsByClassName('ql-editor')[0];
-  toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
-  editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
-  editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
-  let selectedPosition = this.state.selectedPosition;
-  selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
-  this.setState({ lastSize: window.innerWidth, selectedPosition: selectedPosition });
-}
+  onResize(){
+    const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
+    const editorContainer = document.getElementsByClassName('ql-editor')[0];
+    toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
+    editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
+    editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
+    let selectedPosition = this.state.selectedPosition;
+    selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
+    this.setState({ lastSize: window.innerWidth, selectedPosition: selectedPosition });
+  }
 /*
 var video_segments = [[0,6,"213"],[6,9,"264"]];
 
@@ -299,6 +301,7 @@ video_segments.push([last,idx2 + 1,video_segments[i][2]]);
 
 
 
+<<<<<<< HEAD
 render() {
   return (
     <div>
@@ -320,6 +323,21 @@ render() {
     <input type="submit" value="Submit" />
     </form>
     </div>    );
+=======
+  render() {
+    return (
+      <div>
+        <Navbar>
+          <ChangeMode changeState={this.changeState.bind(this)}/>
+          <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
+	  <button onClick={() => this.props.exit()}>My Documents</button>
+        </Navbar>
+        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
+        <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
+	{this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
+
+      </div>    );
+>>>>>>> bf33c758e0cbc1e72242d7734f4aef8e2a4d5cff
   }
 }
 
