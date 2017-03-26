@@ -27,7 +27,7 @@ class App extends Component {
 
 
     return (
-      <div className={"tooltip-container " + (this.props.content === null || this.props.editMode == true ? "" : "visible")}
+      <div className={"tooltip-container " + (this.props.content === null || this.props.editMode === true ? "" : "visible")}
         style={{top: this.props.position.y + offset + 2,
                 left: containerLeft,
                 transformOrigin: ((this.props.position.x - containerLeft - 10)/this.props.position.x)+"% 0%"}}>
