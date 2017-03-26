@@ -20,7 +20,8 @@ class Editor extends Component {
       editor: null,
       curRecordIndex: 0,
       selectedPosition: {x:0, y:0},
-      editMode: true
+      editMode: true,
+      theDeltas: []
     }
 
     this.deltas = [];
@@ -35,6 +36,7 @@ class Editor extends Component {
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
           console.log(res.body.webm_path);
+          console.log(theDeltas);
           //console.log(this.refs.editor.getEditor().getContents());
         });
         new Audio(window.URL.createObjectURL(e.data)).play();
