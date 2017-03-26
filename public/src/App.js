@@ -9,6 +9,7 @@ import './App.css';
 import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.core.css';
 import Login from './Login.js'
+import ChangeMode from './ChangeMode.js'
 
 class App extends Component {
   constructor(){
@@ -25,18 +26,21 @@ class App extends Component {
     this.lastIndex = 0;
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
-    
+
     var config = {
-        apiKey: "AIzaSyCze4etK0LSwjFrwjKtJyMIIcLBPdIi9mw",
-        databaseURL: "mhacks9-162605.firebaseapp.com",
-        authDomain: "https://mhacks9-162605.firebaseio.com"
+      apiKey: "AIzaSyCze4etK0LSwjFrwjKtJyMIIcLBPdIi9mw",
+      databaseURL: "mhacks9-162605.firebaseapp.com",
+      authDomain: "https://mhacks9-162605.firebaseio.com"
     };
     firebase.initializeApp(config);
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
       ctx.recorder.ondataavailable = (e) => {
-        request.post("https://mhacks.1lab.me/audio").field("file", e.data).end();
+        request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
+          console.log(res.body.webm_path);
+          //console.log(this.refs.editor.getEditor().getContents());
+        });
         new Audio(window.URL.createObjectURL(e.data)).play();
       }
     });
@@ -57,13 +61,26 @@ class App extends Component {
     if(this.timeout !== null) clearTimeout(this.timeout);
     this.database.ref("sessions/"+this.session+"/content").set(content.ops);
     if(this.recorder.state === "recording") this.recorder.stop();
+
+    var theDeltas = [];
+    for(var i = 0 ; i < this.deltas.length; i++){
+      theDeltas.push(this.deltas[i]);
+    }
+    console.log(theDeltas);
+    var array = [[0,5,"bold"]];
+    for(var i = 0 ; i < theDeltas.length; i++){
+
+    }
+
+
+
     const curIndex = this.refs.editor.getEditor().getSelection().index;
     this.deltas = [];
     this.lastIndex = curIndex;
     this.timeout = null;
     this.setState({curRecordIndex: curIndex});
   }
-  
+
   onChange(content, delta, source, editor){
     if(source !== 'user') return;
     this.deltas.push(delta.ops);
@@ -87,17 +104,70 @@ class App extends Component {
 
   }
 
+/*
+  var video_segments = [[0,6,"213"],[6,9,"264"]];
+
+  var shift_indexes = function(start_index, amount){
+    for(var i = start_index; i < video_segments.length; i++){
+      video_segments[i][0] += amount;
+      video_segments[i][1] += amount;
+    }
+  };
+
+
+  var delete_range = function(first, last){
+    var diff = last-first;
+    for(var i = 0 ; i < video_segments.length; i++){
+      var idx1 = video_segments[i][0];
+      var idx2 = video_segments[i][1];
+      if(first >= idx1 && last < idx2){
+        if(first == idx1){
+          if(diff == idx2 - idx1){
+            //this catches the case where the entire deletion makes up the entire segment
+          }else{
+            video_segments[i][1] = idx2 - diff;
+          }
+        }else{
+          video_segments[i][1] = idx2 - diff;
+          //delete the current range and proceed to shift everything left by n characters
+        }
+        shift_indexes(i+1, diff);
+      }
+    }
+    console.log(video_segments);
+  };
+
+
+  var add_range = function(first, last, video){
+    if(first == video_segments.length){//we are appending the new video clip to the end of the document
+      video_segments.push([first,last,video]);
+    }else{
+      for(var i = 0 ; i < video_segments.length; i++){
+        var idx1 = video_segments[i][0];
+        var idx2 = video_segments[i][1];
+        if(first >= idx1 && last < idx2){
+          //this shrinks the first range and then pushes two extra ranges to. (effectively a split)
+          video_segments[i][1] = first;
+          video_segments.push([first,last,video]);
+          video_segments.push([last,idx2 + 1,video_segments[i][2]]);
+        }
+      }
+    }
+  };*/
+
+
+
   render() {
     return (
       <div className="app">
-        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
-        <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
-        <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>
-	<Login/>
+      <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
+      <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
+      <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>
+      <Login/>
+      <ChangeMode/>
       </div>
     )
   }
 }
 
 export default App;
-
