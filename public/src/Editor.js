@@ -86,8 +86,6 @@ class Editor extends Component {
 
   stopTyping(content){
     if(this.timeout !== null) clearTimeout(this.timeout);
-    console.log("Session: " + this.session);
-    console.log("Uid: " + this.uid);
     this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
     if(this.recorder.state === "recording") this.recorder.stop();
     this.recorder.start();
