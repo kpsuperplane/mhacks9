@@ -5,12 +5,14 @@ export default class Login extends Component {
 
 	handleClick() {
 		var provider = new firebase.auth.GoogleAuthProvider();
+		console.log(provider);
 		firebase.auth().signInWithPopup(provider).then(function(result) {
 			var token = result.credential.accessToken;
 			var user = result.user;
 			console.log(user);
 		}).catch(function(error) {
-			console.error(error);
+			console.log(error.code);
+			console.log(error.message);
 		});
 	}
 
