@@ -137,7 +137,7 @@ class Editor extends Component {
     }
     
     if(timeout !== null) clearTimeout(timeout);
-    this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
+    this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 2000);
   }
 
   onChangeSelection(range, source, editor){
