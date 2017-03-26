@@ -14,20 +14,15 @@ class App extends Component {
         })
         .end(callback);
     }
-    var imageData = React.createClass({    
+
     getData(data){
       const ctx = this; 
       this.wolframRequest(data, (err, result) => {
         this.setState({data: JSON.parse(result.text).queryresult.pods[1].subpods[0].img.src}); 
         console.log(JSON.parse(result.text).queryresult.pods[1].subpods[0].img.src);
         return data; 
-      }.bind(this)); 
-    },
-    return (
-        <ImageData data={this.state.data} />
-        )
-    });
-
+      });
+    }
   render() {
     const quillContents = document.getElementsByClassName('quill-contents');
     const offset = quillContents.length ? quillContents[0].getBoundingClientRect().top : 0;
