@@ -26,7 +26,8 @@ class Editor extends Component {
       editMode: true,
       theDeltas: [],
       recordingLength: 0,
-      recording: false
+      recording: false,
+      lastSize: window.innerWidth
     }
     this.audio_segments = [[0,6,"213"],[6,9,"264"]];
     this.currentAudio = "";
@@ -211,7 +212,8 @@ class Editor extends Component {
     toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
     editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
     editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
-    this.forceUpdate();
+    this.state.selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
+    this.setState({ lastSize: window.innerWidth });
   }
 
   render() {
@@ -225,7 +227,7 @@ class Editor extends Component {
         </Navbar>
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
-        <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
+	{this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
         <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
       </div>
     )
