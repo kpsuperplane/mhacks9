@@ -128,11 +128,11 @@ stopTyping(content){
     end: curIndex,
     file: this.currentAudio
   });*/
-}
-this.deltas = [];
-this.lastIndex = curIndex;
-this.timeout = null;
-this.setState({curRecordIndex: curIndex});
+  }
+  this.deltas = [];
+  this.lastIndex = curIndex;
+  this.timeout = null;
+  this.setState({curRecordIndex: curIndex});
 }
 
 onChange(content, delta, source, editor){
@@ -143,6 +143,12 @@ onChange(content, delta, source, editor){
   if(timeout === null){
     if(this.recorder.state === "recording") this.recorder.stop();
     recorder.start();
+    const curIndex = editor.getSelection().index - 1;
+    if(curIndex != this.lastIndex){
+      this.stopTyping(editor.getContents());
+      this.lastIndex = curIndex;
+      this.setState({curRecordIndex: curIndex});
+    }
   }
   if(timeout !== null) clearTimeout(timeout);
   this.lastIndex = this.refs.editor.getEditor().getSelection().index;
