@@ -6,6 +6,7 @@ import speech_recognition as sr
 import configparser
 import time
 import requests
+import random
 
 app = Flask(__name__, static_url_path='/public/build', template_folder='public/build')
 CORS(app)
@@ -70,12 +71,12 @@ def audio():
         if file.filename == '':
             return 'No filename'
         if file:
-            filename = str(int(time.time()))
+            filename = str(random.getrandbits(128))
             print(filename)
             webm_path = os.path.join(upload_path, filename + ".webm")
-            flac_path = os.path.join(upload_path, filename + ".flac")
+            # flac_path = os.path.join(upload_path, filename + ".flac")
             file.save(webm_path)
-            os.system("ffmpeg -i {} -ar 16000 -ac 1 {}".format(webm_path, flac_path))
+            # os.system("ffmpeg -i {} -ar 16000 -ac 1 {}".format(webm_path, flac_path))
             # with sr.AudioFile(flac_path) as source:
                 # r.adjust_for_ambient_noise(source, duration = 1)
                 # audio = r.record(source)
