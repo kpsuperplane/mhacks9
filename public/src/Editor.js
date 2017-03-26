@@ -24,6 +24,7 @@ class Editor extends Component {
       theDeltas: []
     }
 
+
     this.deltas = [];
     this.lastIndex = 0;
     this.onChange = this.onChange.bind(this);
@@ -37,7 +38,7 @@ class Editor extends Component {
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
           console.log(res.body.webm_path);
-          console.log(theDeltas);
+          console.log(ctx.state.theDeltas);
           //console.log(this.refs.editor.getEditor().getContents());
         });
         new Audio(window.URL.createObjectURL(e.data)).play();
@@ -61,17 +62,9 @@ class Editor extends Component {
     this.database.ref("users/"+this.uid+this.session+"/content").set(content.ops);
     if(this.recorder.state === "recording") this.recorder.stop();
 
-    var theDeltas = [];
     for(var i = 0 ; i < this.deltas.length; i++){
-      theDeltas.push(this.deltas[i]);
+      this.state.theDeltas.push(this.deltas[i]);
     }
-    console.log(theDeltas);
-    var array = [[0,5,"bold"]];
-    for(var i = 0 ; i < theDeltas.length; i++){
-
-    }
-
-
 
     const curIndex = this.refs.editor.getEditor().getSelection().index;
     this.deltas = [];
