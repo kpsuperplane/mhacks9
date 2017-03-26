@@ -22,9 +22,11 @@ class Playbar extends Component {
             endIndexPosition = editor.getBounds(endIndex, 0);
         }
         let lines = [];
+        const textLength = editor.getLength();
+
         while(true){
             const firstPosition = editor.getBounds(index, 0);
-            while(startIndexPosition.top === lastTop){
+            while(startIndexPosition.top <= lastTop && index < textLength){
                 index++;
                 startIndexPosition = editor.getBounds(index, 0);
             }

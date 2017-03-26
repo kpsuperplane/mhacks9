@@ -6,6 +6,7 @@ import Highlight from "./Highlight";
 import * as firebase from "firebase";
 import request from "superagent";
 import './Editor.css';
+import './Components.css';
 import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.core.css';
 import ChangeMode from './ChangeMode.js';
@@ -26,11 +27,6 @@ class Editor extends Component {
     this.lastIndex = 0;
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
-    firebase.initializeApp({
-        apiKey: "AIzaSyBPXxoydRC52Y5Xz4fhPxYSo54_j4knBO4",
-        authDomain: "mhacks9-bfe7d.firebaseapp.com",
-        databaseURL: "https://mhacks9-bfe7d.firebaseio.com"
-    });
     this.database = firebase.database();
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
@@ -168,7 +164,7 @@ class Editor extends Component {
 
   render() {
     return (
-      <div>
+      <div className="container">
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>

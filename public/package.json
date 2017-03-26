@@ -51,6 +51,7 @@
     "react": "^15.4.2",
     "react-audio-recorder": "^0.1.0",
     "react-dom": "^15.4.2",
+    "react-icons": "^2.2.3",
     "react-quill": "^1.0.0-beta-3",
     "recorderjs": "^1.0.1",
     "superagent": "^3.5.2",

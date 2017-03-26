@@ -1,0 +1,19 @@
+.login{
+    text-align: center;
+    padding-top:3em;
+}
+.login h1{
+    font-size:5em;
+    font-weight:300;
+    color:#09A7DB;
+    margin-bottom:0;
+}
+.login h5{
+    font-size:1.1em;
+    font-weight:400;
+    margin:1.5em 0 2.1em 0;
+    color:#777;
+}
+.login h5 sup{
+    font-size:0.5em;
+}
