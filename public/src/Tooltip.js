@@ -33,7 +33,7 @@ class App extends Component {
             left: (this.props.position.x / window.outerWidth) * 200 + (window.outerWidth - this.props.width / 2) + 5 + "%"}}></div>
           <div className="tooltip">
             <h4 className="title">{this.props.content}</h4>
-            <img alt="Wolfram Alpha Search Result" src={this.getData(this.props.content)} />
+            <img alt="Wolfram Alpha Search Result" src={this.props.content === null ? '' : this.getData(this.props.content)} />
         </div>
       </div>
     );
