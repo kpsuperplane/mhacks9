@@ -96,3 +96,6 @@ ENV/
 secrets.cfg
 google_credentials.json
 files/
+
+# Vim
+*.swp
