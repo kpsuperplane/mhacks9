@@ -30,6 +30,8 @@ class Editor extends Component {
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
     this.database = firebase.database();
+    this.uid = firebase.auth().currentUser.uid;
+    this.session = localStorage.getItem("session") || (localStorage.setItem("session", (new Date()).getTime()), localStorage.getItem("session"));
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
@@ -48,7 +50,7 @@ class Editor extends Component {
   componentDidMount(){
     this.setState({editor: this.refs.editor.getEditor()});
     const editor = this.refs.editor.getEditor();
-    this.database.ref("sessions/"+this.session).once('value').then(function (snapshot) {
+    this.database.ref("users/"+this.uid+"/"+this.session).once('value').then(function (snapshot) {
       const data = snapshot.val() || {recordings: [], content: []};
       editor.setContents(data.content);
       this.onResize();
@@ -62,7 +64,9 @@ class Editor extends Component {
 
   stopTyping(content){
     if(this.timeout !== null) clearTimeout(this.timeout);
-    this.database.ref("sessions/"+this.session+"/content").set(content.ops);
+    console.log("Session: " + this.session);
+    console.log("Uid: " + this.uid);
+    this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
     if(this.recorder.state === "recording") this.recorder.stop();
 
     var theDeltas = [];
@@ -113,8 +117,6 @@ class Editor extends Component {
     }else{
       this.setState({editMode: true});
     }
-    //disables wolfram alpha
-    console.log("disable the damn thing");
   }
 
   onResize(){
