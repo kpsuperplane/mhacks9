@@ -2,3 +2,4 @@ flask
 flask-cors
 werkzeug
 SpeechRecognition
+requests

@@ -5,12 +5,9 @@ import request from "superagent";
 class App extends Component {
 
     wolframRequest(query, callback) {
-      request.get("https://api.wolframalpha.com/v2/query")
+      request.get("https://mhacks.1lab.me/wolfram")
         .query({
-          input: query + " definition",
-          appid: "WPHVGV-P8YW5TGLQX",
-          format: "image,plaintext",
-          output: 'json'
+          query: query + " definition"
         })
         .end(callback);
     }
@@ -36,7 +33,7 @@ class App extends Component {
             left: (this.props.position.x / window.outerWidth) * 200 + (window.outerWidth - this.props.width / 2) + 5 + "%"}}></div>
           <div className="tooltip">
             <h4 className="title">{this.props.content}</h4>
-            <img alt="Wolfram Alpha Search Result" src={this.getData(this.props.content)} />
+            <img alt="Wolfram Alpha Search Result" src={this.props.content === null ? '' : this.getData(this.props.content)} />
         </div>
       </div>
     );

@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 import speech_recognition as sr
 import configparser
 import time
+import requests
 
 app = Flask(__name__, static_url_path='/public/build', template_folder='public/build')
 CORS(app)
@@ -21,6 +22,7 @@ ibm_username = config['mhacks']['ibm_username']
 ibm_password = config['mhacks']['ibm_password']
 microsoft = config['mhacks']['microsoft']
 google_credentials = open('google_credentials.json', 'r').read()
+wolfram_appid = config['mhacks']['wolfram_appid']
 
 r = sr.Recognizer()
 r.energy_threshold = 4000
@@ -45,6 +47,19 @@ def media(filename):
 @app.route('/files/<path:filename>')
 def download_file(filename):
     return send_from_directory(upload_path, filename)
+
+@app.route('/wolfram')
+def wolfram():
+    query = request.args.get('query')
+    r = requests.get("https://api.wolframalpha.com/v2/query",
+        params = {
+            'appid': wolfram_appid,
+            'format': 'image,plaintext',
+            'input': query,
+            'output': 'json'
+        }
+    )
+    return jsonify(r.json())
 
 @app.route('/audio', methods=['POST'])
 def audio():
