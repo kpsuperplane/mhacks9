@@ -5,12 +5,9 @@ import request from "superagent";
 class App extends Component {
 
     wolframRequest(query, callback) {
-      request.get("https://api.wolframalpha.com/v2/query")
+      request.get("https://mhacks.1lab.me/wolfram")
         .query({
-          input: query + " definition",
-          appid: "WPHVGV-P8YW5TGLQX",
-          format: "image,plaintext",
-          output: 'json'
+          query: query + " definition"
         })
         .end(callback);
     }
