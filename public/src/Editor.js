@@ -314,15 +314,6 @@ add_range(first, last, video){
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
 	{this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
 
-        <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
-
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          ID:
-          <input type="text" value={this.state.value} onChange={this.handleChange} />
-        </label>
-        <input type="submit" value="Submit" />
-      </form>
       </div>    );
   }
 }
