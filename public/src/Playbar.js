@@ -12,7 +12,7 @@ class Playbar extends Component {
     render() {
         if(this.props.editor === null) return null;
         const {editor} = this.props;
-        let index = this.props.start; 
+        let index = Math.max(this.props.start, 0); 
         let lastTop = -10;
         let startIndexPosition = editor.getBounds(index, 0);
         let endIndexPosition = {...startIndexPosition};
@@ -31,7 +31,7 @@ class Playbar extends Component {
                 startIndexPosition = editor.getBounds(index, 0);
             }
             lastTop = startIndexPosition.top;
-            lines.push(<div key={"indicator-"+index} className={"indicator" + (this.props.end === null ? " current" : "")} style={{left: firstPosition.left + firstPosition.width, width: (firstPosition.top === endIndexPosition.top) ? (endIndexPosition.left - firstPosition.left):(editor.getBounds(index-1).left - firstPosition.left), top: firstPosition.top}} />);
+            lines.push(<div key={"indicator-"+index} className={"indicator" + (this.props.end === null ? " current" : "")} style={{left: firstPosition.left + firstPosition.width, width: (firstPosition.top === endIndexPosition.top) ? (endIndexPosition.left - firstPosition.left):(editor.getBounds(Math.max(index-1 ,0)).left - firstPosition.left), top: firstPosition.top}} />);
             if(firstPosition.top >= endIndexPosition.top) break;
             
         }

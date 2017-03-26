@@ -12,6 +12,7 @@ import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.core.css';
 import ChangeMode from './ChangeMode.js';
 import Record from "react-icons/lib/md/adjust";
+import RecordFill from "react-icons/lib/md/lens";
 
 import ReactAudioPlayer from 'react-audio-player';
 import RecordFill from "react-icons/lib/md/lens";
@@ -53,16 +54,16 @@ class Editor extends Component {
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
       ctx.recorder.addEventListener('start', () => {
-        ctx.setState({recordingLength: 0});
+        ctx.setState({recordingLength: 0, recording: true});
         ctx.recordingTimer = setInterval(() => ctx.setState({recordingLength: ctx.state.recordingLength + 1}), 1000);
       });
       ctx.recorder.addEventListener('stop', () => {
         clearInterval(ctx.recordingTimer);
-        ctx.setState({recordingLength: 0});
+        ctx.setState({recordingLength: 0, recording: false});
       })
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
-          const editor = this.refs.editor.getEditor();
+          const editor = ctx.refs.editor.getEditor();
           var hi = editor.getContents();
           var changes = ctx.state.theDeltas;
           for(var i = 0 ; i < changes.length; i ++){
@@ -70,7 +71,7 @@ class Editor extends Component {
           }
           console.log(res.body.webm_path);
           console.log(ctx.state.theDeltas);
-          console.log(this.refs.editor.getEditor().getContents());
+          console.log(ctx.refs.editor.getEditor().getContents());
         });
         new Audio(window.URL.createObjectURL(e.data)).play();
       }
@@ -130,12 +131,20 @@ class Editor extends Component {
     }
     
     if(timeout !== null) clearTimeout(timeout);
-    this.lastIndex = this.refs.editor.getEditor().getSelection().index;
     this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
   }
 
   onChangeSelection(range, source, editor){
-    if(range && Math.abs(this.lastIndex - range.index) > 2) this.stopTyping(editor.getContents());
+    if(range && Math.abs(this.lastIndex - range.index) > 2){
+        if(this.timeout === null){
+          this.lastIndex = range.index;
+          this.setState({curRecordIndex: range.index});
+        }else{
+          this.stopTyping(editor.getContents());
+        }
+    }else{
+          this.lastIndex = range.index;
+    }
     if(range && range.length > 1){
       const content = editor.getText(range.index, range.length);
       const location = editor.getBounds(range.index, range.length);
@@ -211,8 +220,9 @@ class Editor extends Component {
     toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
     editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
     editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
-    this.state.selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
-    this.setState({ lastSize: window.innerWidth });
+    let selectedPosition = this.state.selectedPosition;
+    selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
+    this.setState({ lastSize: window.innerWidth, selectedPosition: selectedPosition });
   }
 /*
   var video_segments = [[0,6,"213"],[6,9,"264"]];
@@ -268,13 +278,10 @@ class Editor extends Component {
 
 
   render() {
-    console.log(this.state.selectedPosition);
     return (
       <div>
         <Navbar>
           <ChangeMode changeState={this.changeState.bind(this)}/>
-
-          <ReactAudioPlayer src={this.currentAudio} autoPlay/>
           <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
         </Navbar>
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
