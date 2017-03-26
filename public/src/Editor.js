@@ -24,10 +24,9 @@ class Editor extends Component {
       selectedPosition: {x:0, y:0},
       editMode: true,
       theDeltas: [],
-      video_segments: [[0,6,"213"],[6,9,"264"]],
       recordingLength: 0
     }
-
+    this.video_segments = [[0,6,"213"],[6,9,"264"]];
 
     this.deltas = [];
     this.lastIndex = 0;
@@ -50,14 +49,15 @@ class Editor extends Component {
       })
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
+          const editor = this.refs.editor.getEditor();
           var hi = editor.getContents();
           var changes = ctx.state.theDeltas;
           for(var i = 0 ; i < changes.length; i ++){
-            //add_range(changes[i][0][]);
+            //add_range(changes[i][0][res.body.webm_path]);
           }
           console.log(res.body.webm_path);
           console.log(ctx.state.theDeltas);
-          //console.log(this.refs.editor.getEditor().getContents());
+          console.log(this.refs.editor.getEditor().getContents());
         });
         new Audio(window.URL.createObjectURL(e.data)).play();
       }
@@ -141,46 +141,46 @@ class Editor extends Component {
 
 
   shift_indexes(start_index, amount){
-    for(var i = start_index; i < this.state.video_segments.length; i++){
-      this.state.video_segments[i][0] += amount;
-      this.state.video_segments[i][1] += amount;
+    for(var i = start_index; i < this.video_segments.length; i++){
+      this.video_segments[i][0] += amount;
+      this.video_segments[i][1] += amount;
     }
   }
 
   delete_range(first, last){
     var diff = last-first;
-    for(var i = 0 ; i < this.state.video_segments.length; i++){
-      var idx1 = this.state.video_segments[i][0];
-      var idx2 = this.state.video_segments[i][1];
+    for(var i = 0 ; i < this.video_segments.length; i++){
+      var idx1 = this.video_segments[i][0];
+      var idx2 = this.video_segments[i][1];
       if(first >= idx1 && last < idx2){
         if(first === idx1){
           if(diff === idx2 - idx1){
             //this catches the case where the entire deletion makes up the entire segment
           }else{
-            this.state.video_segments[i][1] = idx2 - diff;
+            this.video_segments[i][1] = idx2 - diff;
           }
         }else{
-          this.state.video_segments[i][1] = idx2 - diff;
+          this.video_segments[i][1] = idx2 - diff;
           //delete the current range and proceed to shift everything left by n characters
         }
-        shift_indexes(i+1, diff);
+        this.shift_indexes(i+1, diff);
       }
     }
-    console.log(this.state.video_segments);
+    console.log(this.video_segments);
   }
 
   add_range(first, last, video){
-    if(first === this.state.video_segments.length){//we are appending the new video clip to the end of the document
-      this.state.video_segments.push([first,last,video]);
+    if(first === this.video_segments.length){//we are appending the new video clip to the end of the document
+      this.video_segments.push([first,last,video]);
     }else{
-      for(var i = 0 ; i < this.state.video_segments.length; i++){
-        var idx1 = this.state.video_segments[i][0];
-        var idx2 = this.state.video_segments[i][1];
+      for(var i = 0 ; i < this.video_segments.length; i++){
+        var idx1 = this.video_segments[i][0];
+        var idx2 = this.video_segments[i][1];
         if(first >= idx1 && last < idx2){
           //this shrinks the first range and then pushes two extra ranges to. (effectively a split)
-          this.state.video_segments[i][1] = first;
-          this.state.video_segments.push([first,last,video]);
-          this.state.video_segments.push([last,idx2 + 1,video_segments[i][2]]);
+          this.video_segments[i][1] = first;
+          this.video_segments.push([first,last,video]);
+          this.video_segments.push([last,idx2 + 1,this.video_segments[i][2]]);
         }
       }
     }
