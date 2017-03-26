@@ -24,13 +24,9 @@ class Editor extends Component {
       selectedPosition: {x:0, y:0},
       editMode: true,
       theDeltas: [],
-<<<<<<< HEAD
-      recordingLength: 0
-=======
       recordingLength: 0,
       recording: false,
       lastSize: window.innerWidth
->>>>>>> 443769f70e44d5d5f42acb3208159b58e07c3759
     }
     this.video_segments = [[0,6,"213"],[6,9,"264"]];
 
@@ -224,11 +220,8 @@ class Editor extends Component {
     toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
     editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
     editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
-<<<<<<< HEAD
-=======
     this.state.selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
     this.setState({ lastSize: window.innerWidth });
->>>>>>> 443769f70e44d5d5f42acb3208159b58e07c3759
   }
 /*
   var video_segments = [[0,6,"213"],[6,9,"264"]];
@@ -289,12 +282,9 @@ class Editor extends Component {
       <div>
         <Navbar>
           <ChangeMode changeState={this.changeState.bind(this)}/>
-<<<<<<< HEAD
-          <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
-=======
+
           <ReactAudioPlayer src={this.currentAudio} autoPlay/>
           <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
->>>>>>> 443769f70e44d5d5f42acb3208159b58e07c3759
         </Navbar>
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
