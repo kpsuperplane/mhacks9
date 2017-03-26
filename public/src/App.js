@@ -8,6 +8,7 @@ import request from "superagent";
 import './App.css';
 import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.core.css';
+import Login from './Login.js'
 
 class App extends Component {
   constructor(){
@@ -93,10 +94,11 @@ class App extends Component {
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>
-
-        </div>
+	<Login/>
+      </div>
     )
   }
 }
 
 export default App;
+

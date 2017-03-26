@@ -52,6 +52,7 @@
     "react-audio-recorder": "^0.1.0",
     "react-dom": "^15.4.2",
     "react-quill": "^1.0.0-beta-3",
+    "reactfire": "^1.0.0",
     "recorderjs": "^1.0.1",
     "superagent": "^3.5.2",
     "waveform-data": "^2.0.1",

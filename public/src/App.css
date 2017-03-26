@@ -19,9 +19,9 @@
 }
 
 .ql-container {
-  margin: auto !important;
-  width: 50%;
-  border: none !important;
+  // margin: auto !important;
+  // width: 50%;
+  // border: none !important;
 }
 
 @keyframes App-logo-spin {
