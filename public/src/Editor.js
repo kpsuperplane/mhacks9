@@ -35,6 +35,7 @@ class Editor extends Component {
 
     this.deltas = [];
     this.lastIndex = 0;
+    this.onResize = this.onResize.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
     this.database = firebase.database();
@@ -210,6 +211,7 @@ class Editor extends Component {
     toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
     editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
     editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
+    this.forceUpdate();
   }
 
   render() {
