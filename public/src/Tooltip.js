@@ -40,10 +40,10 @@ class App extends Component {
     return (
       <div className={"tooltip-container " + (this.props.content === null || "visible")}
         style={{top: this.props.position.y + offset + 2,
-                left: (this.props.position.x / window.outerWidth) * 200 + (window.outerWidth - this.props.width / 2) + "%", 
+                left: (this.props.position.x / window.outerWidth) + 400* 100 + "%", 
                 transformOrigin: ((this.props.position.x - containerLeft - 10)/this.props.position.x)+"% 0%"}}>
           <div className="tooltip-arrow" style={{
-            left: (this.props.position.x / window.outerWidth) * 200 + (window.outerWidth - this.props.width / 2) + 5 + "%"}}></div>
+            left: (this.props.position.x / window.outerWidth) * 100 + "%"}}></div>
           <div className="tooltip">
             <h4 className="title">{this.props.content}</h4>
 	    {this.state.imageurl === undefined || this.state.imageurl === null ? "Loading..." : <img alt="Wolfram Alpha Search Result" src={this.state.imageurl} />}
