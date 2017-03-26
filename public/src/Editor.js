@@ -17,7 +17,6 @@ import ReactAudioPlayer from 'react-audio-player';
 class Editor extends Component {
   constructor(){
     super();
-
     this.state = {
       selected: null,
       editor: null,
@@ -88,6 +87,7 @@ class Editor extends Component {
 
   stopTyping(content){
     if(this.timeout !== null) clearTimeout(this.timeout);
+    console.log(content.ops);
     this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
     if(this.recorder.state === "recording") this.recorder.stop();
     this.recorder.start();
@@ -171,7 +171,7 @@ class Editor extends Component {
   }
 
   add_range(first, last, video){
-    console.log("adding_range");
+    /*console.log("adding_range");
     console.log(first);
     console.log(last);
     //console.log(this.audio_segments.length);
@@ -196,7 +196,7 @@ class Editor extends Component {
         }
       }
     }
-    this.shift_indexes(i+1, last-first);
+    this.shift_indexes(i+1, last-first);*/
   }
 
   onResize(){

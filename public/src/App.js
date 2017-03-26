@@ -30,7 +30,6 @@ class App extends Component {
         });
     }
     render() {
-        
         let view = null;
         switch(this.state.signedIn){
             case false:
