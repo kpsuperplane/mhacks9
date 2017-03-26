@@ -5,7 +5,6 @@ import "./Components.css";
 export default class Logout extends Component {
 
 	handleClick() {
-		var provider = new firebase.auth.GoogleAuthProvider();
 		firebase.auth().signOut();
 	}
 

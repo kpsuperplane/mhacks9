@@ -29,10 +29,10 @@ class App extends Component {
     return (
       <div className={"tooltip-container " + (this.props.content === null || "visible")}
         style={{top: this.props.position.y + offset + 2,
-                left: "50%",
+                left: (this.props.position.x / window.outerWidth) * 100 + (window.outerWidth - this.props.width / 2) + "%", 
                 transformOrigin: ((this.props.position.x - containerLeft - 10)/this.props.position.x)+"% 0%"}}>
           <div className="tooltip-arrow" style={{
-            left: "50%"}}></div>
+            left: (this.props.position.x / window.outerWidth) * 100 + (window.outerWidth - this.props.width / 2) + "%"}}></div>
           <div className="tooltip">
             <h4 className="title">{this.props.content}</h4>
             <img alt="Wolfram Alpha Search Result" src={popup} />
