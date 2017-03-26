@@ -26,13 +26,12 @@ class App extends Component {
     this.lastIndex = 0;
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
-
-    var config = {
-      apiKey: "AIzaSyCze4etK0LSwjFrwjKtJyMIIcLBPdIi9mw",
-      databaseURL: "mhacks9-162605.firebaseapp.com",
-      authDomain: "https://mhacks9-162605.firebaseio.com"
-    };
-    firebase.initializeApp(config);
+    firebase.initializeApp({
+        apiKey: "AIzaSyBPXxoydRC52Y5Xz4fhPxYSo54_j4knBO4",
+        authDomain: "mhacks9-bfe7d.firebaseapp.com",
+        databaseURL: "https://mhacks9-bfe7d.firebaseio.com"
+    });
+    this.database = firebase.database();
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
