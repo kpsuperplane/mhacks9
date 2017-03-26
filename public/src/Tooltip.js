@@ -21,7 +21,11 @@ class Tooltip extends Component {
     getData(data){
       const ctx = this; 
       this.wolframRequest(data, (err, result) => {
+       if (JSON.parse(result.text).queryresult.numpods == 0){
+        ctx.setState({lastContent: data, imageurl: 'https://img.buzzfeed.com/buzzfeed-static/static/2015-10/30/9/enhanced/webdr15/enhanced-17219-1446211336-1.jpg'});
+       }else{
        ctx.setState({lastContent: data, imageurl: JSON.parse(result.text).queryresult.pods[1].subpods[0].img.src});
+     }
       });
     }
   componentDidMount(){

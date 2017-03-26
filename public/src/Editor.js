@@ -15,7 +15,6 @@ import Record from "react-icons/lib/md/adjust";
 import RecordFill from "react-icons/lib/md/lens";
 
 import ReactAudioPlayer from 'react-audio-player';
-import RecordFill from "react-icons/lib/md/lens";
 
 
 class Editor extends Component {
