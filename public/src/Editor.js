@@ -62,167 +62,178 @@ class Editor extends Component {
       })
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
-          const editor = ctx.refs.editor.getEditor();
-          var hi = editor.getContents();
-          var changes = ctx.state.theDeltas;
+          //const editor = ctx.refs.editor.getEditor();
+          //var hi = editor.getContents();
+          /*var changes = ctx.state.theDeltas;
           for(var i = 0 ; i < changes.length; i ++){
-            ctx.add_range(changes[i][0][res.body.webm_path]);
-          }
-          console.log(res.body.webm_path);
-          console.log(ctx.state.theDeltas);
-          console.log(ctx.refs.editor.getEditor().getContents());
-        });
-        new Audio(window.URL.createObjectURL(e.data)).play();
-      }
-    });
-    this.timeout = null;
+          ctx.add_range(changes[i][0], changes[i][1], [res.body.webm_path]);
+          //console.log(changes[i]);
+        }*/
+        ctx.currentAudio = res.body.webm_path;
+        //console.log(ctx.audio_segments);
+        //console.log(this.refs.editor.getEditor().getContents());
+      });
+      new Audio(window.URL.createObjectURL(e.data)).play();
+    }
+  });
+  this.timeout = null;
+}
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
+componentDidMount(){
+  this.setState({editor: this.refs.editor.getEditor()});
+  const editor = this.refs.editor.getEditor();
+  const ctx = this;
+  this.database.ref("users/"+this.uid+"/"+this.session).once('value').then(function (snapshot) {
+    const data = snapshot.val() || {recordings: [], content: []};
+    editor.setContents(data.content);
+    ctx.onResize();
+  });
+  window.addEventListener('resize', this.onResize);
+}
 
-  handleChange(event) {
-    this.setState({value: event.target.value});
-  }
+componentWillUnmount(){
+  window.removeEventListener('resize', this.onResize);
+}
 
-  handleSubmit(event) {
-    console.log(this.state.value);
-    event.preventDefault();
+stopTyping(content){
+  if(this.timeout !== null) clearTimeout(this.timeout);
+  this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
+  if(this.recorder.state === "recording") this.recorder.stop();
+  this.recorder.start();
+  for(var i = 0 ; i < this.deltas.length; i++){
+    this.state.theDeltas.push(this.deltas[i]);
   }
-  componentDidMount(){
-    this.setState({editor: this.refs.editor.getEditor()});
-    const editor = this.refs.editor.getEditor();
+  const curIndex = this.refs.editor.getEditor().getSelection().index;
+  if(this.deltas.length > 0){
+
     const ctx = this;
-    this.database.ref("users/"+this.uid+"/"+this.session).once('value').then(function (snapshot) {
-      const data = snapshot.val() || {recordings: [], content: []};
-      editor.setContents(data.content);
-      ctx.onResize();
+    this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
+      var recordings = snapshot.val();
+      ctx.audio_segments = [""];
+      for (var recording in recordings){
+        var curRec = recordings[recording];
+        ctx.audio_segments.push([curRec.begin,curRec.end,curRec.file]);
+      }
+      console.log(ctx.audio_segments);
+      ctx.add_range(ctx.state.curRecordIndex, curIndex, ctx.currentAudio);
+      console.log(ctx.audio_segments);
     });
-    window.addEventListener('resize', this.onResize);
-  }
 
-  componentWillUnmount(){
-    window.removeEventListener('resize', this.onResize);
+    /*var fireBaseRef = this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").push();
+    fireBaseRef.set({
+    begin: this.state.curRecordIndex,
+    end: curIndex,
+    file: this.currentAudio
+  });*/
   }
+  this.deltas = [];
+  this.lastIndex = curIndex;
+  this.timeout = null;
+  this.setState({curRecordIndex: curIndex});
+}
 
-  stopTyping(content){
-    if(this.timeout !== null) clearTimeout(this.timeout);
-    this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
+onChange(content, delta, source, editor){
+  if(source !== 'user') return;
+  this.deltas.push(delta.ops);
+  const {recorder, timeout} = this;
+  const ctx = this;
+  if(timeout === null){
     if(this.recorder.state === "recording") this.recorder.stop();
-    this.recorder.start();
-
-    for(var i = 0 ; i < this.deltas.length; i++){
-      this.state.theDeltas.push(this.deltas[i]);
+    recorder.start();
+    const curIndex = editor.getSelection().index - 1;
+    if(curIndex != this.lastIndex){
+      this.stopTyping(editor.getContents());
+      this.lastIndex = curIndex;
+      this.setState({curRecordIndex: curIndex});
     }
+  }
+  if(timeout !== null) clearTimeout(timeout);
+  this.lastIndex = this.refs.editor.getEditor().getSelection().index;
+  this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
+}
 
-    const curIndex = this.refs.editor.getEditor().getSelection().index;
-    this.deltas = [];
-    this.lastIndex = curIndex;
-    this.timeout = null;
-    this.setState({curRecordIndex: curIndex});
+
+onChangeSelection(range, source, editor){
+  if(range && Math.abs(this.lastIndex - range.index) > 10) this.stopTyping(editor.getContents());
+  if(range && range.length > 1){
+    const content = editor.getText(range.index, range.length);
+    const location = editor.getBounds(range.index, range.length);
+    this.setState({selected: content, selectedPosition: {y: location.top + location.height, x: location.left + location.width/2}});
+  }else{
+    if(this.state.selected != null) this.setState({selected: null});
   }
 
-  onChange(content, delta, source, editor){
-    if(source !== 'user') return;
-    this.deltas.push(delta.ops);
-    const {recorder, timeout} = this;
-    const ctx = this;
-    if(timeout === null){
-      if(this.recorder.state === "recording") this.recorder.stop();
-      recorder.start();
-      const curIndex = editor.getSelection().index - 1;
-      console.log(curIndex, this.lastIndex);
-      if(curIndex != this.lastIndex){
-        this.stopTyping(editor.getContents());
-        this.lastIndex = curIndex;
-        this.setState({curRecordIndex: curIndex});
-      }
-    }
-    
-    if(timeout !== null) clearTimeout(timeout);
-    this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 2000);
-  }
+}
 
-  onChangeSelection(range, source, editor){
-    if(range && Math.abs(this.lastIndex - range.index) > 2){
-        if(this.timeout === null){
-          this.lastIndex = range.index;
-          this.setState({curRecordIndex: range.index});
+changeState(){
+  if(this.state.editMode){
+    this.setState({editMode: false});
+    this.editor.enable(false);
+    console.log(false);
+  }else{
+    this.setState({editMode: true});
+    this.editor.enable(true);
+    console.log(true);
+  }
+}
+
+shift_indexes(start_index, amount){
+  for(var i = start_index; i < this.audio_segments.length; i++){
+    this.audio_segments[i][0] += amount;
+    this.audio_segments[i][1] += amount;
+  }
+}
+
+delete_range(first, last){
+  var diff = last-first;
+  for(var i = 0 ; i < this.audio_segments.length; i++){
+    var idx1 = this.audio_segments[i][0];
+    var idx2 = this.audio_segments[i][1];
+    if(first >= idx1 && last < idx2){
+      if(first === idx1){
+        if(diff === idx2 - idx1){
+          //this catches the case where the entire deletion makes up the entire segment
         }else{
-          this.stopTyping(editor.getContents());
+          this.audio_segments[i][1] = idx2 - diff;
         }
-    }else{
-          this.lastIndex = range.index;
-    }
-    if(range && range.length > 1){
-      const content = editor.getText(range.index, range.length);
-      const location = editor.getBounds(range.index, range.length);
-      this.setState({selected: content, selectedPosition: {y: location.top + location.height, x: location.left + location.width/2}});
-    }else{
-      if(this.state.selected != null) this.setState({selected: null});
-    }
-
-  }
-
-  changeState(){
-    if(this.state.editMode){
-      this.setState({editMode: false});
-      this.editor.enable(false);
-      console.log(false);
-    }else{
-      this.setState({editMode: true});
-      this.editor.enable(true);
-      console.log(true);
-    }
-  }
-
-  shift_indexes(start_index, amount){
-    for(var i = start_index; i < this.video_segments.length; i++){
-      this.video_segments[i][0] += amount;
-      this.video_segments[i][1] += amount;
-    }
-  }
-
-  delete_range(first, last){
-    var diff = last-first;
-    for(var i = 0 ; i < this.video_segments.length; i++){
-      var idx1 = this.video_segments[i][0];
-      var idx2 = this.video_segments[i][1];
-      if(first >= idx1 && last < idx2){
-        if(first === idx1){
-          if(diff === idx2 - idx1){
-            //this catches the case where the entire deletion makes up the entire segment
-          }else{
-            this.video_segments[i][1] = idx2 - diff;
-          }
-        }else{
-          this.video_segments[i][1] = idx2 - diff;
-          //delete the current range and proceed to shift everything left by n characters
-        }
-        this.shift_indexes(i+1, diff);
+      }else{
+        this.audio_segments[i][1] = idx2 - diff;
+        //delete the current range and proceed to shift everything left by n characters
       }
+      this.shift_indexes(i+1, diff);
     }
-    console.log(this.video_segments);
   }
+  console.log(this.audio_segments);
+}
 
-  add_range(first, last, video){
-    if(first === this.video_segments.length){//we are appending the new video clip to the end of the document
-      this.video_segments.push([first,last,video]);
+add_range(first, last, video){
+  console.log(first);
+  console.log(last);
+  if(last > first){
+    console.log(first);
+    console.log(last);
+    var charCount = this.refs.editor.getEditor().getLength();
+    if(first == charCount){//we are appending the new video clip to the end of the document
+      this.audio_segments.push([first,last,video]);
+      console.log("added");
     }else{
-      for(var i = 0 ; i < this.video_segments.length; i++){
-        var idx1 = this.video_segments[i][0];
-        var idx2 = this.video_segments[i][1];
+      console.log("added2");
+      for(var i = 0 ; i < charCount; i++){
+        break;
+        var idx1 = this.audio_segments[i][0];
+        var idx2 = this.audio_segments[i][1];
         if(first >= idx1 && last < idx2){
+          console.log("hi");
           //this shrinks the first range and then pushes two extra ranges to. (effectively a split)
-          this.video_segments[i][1] = first;
-          this.video_segments.push([first,last,video]);
-          this.video_segments.push([last,idx2 + 1,this.video_segments[i][2]]);
+          this.audio_segments[i][1] = first;
+          this.audio_segments.push([first,last,video]);
+          this.audio_segments.push([last,idx2 + 1,this.audio_segments[i][2]]);
         }
       }
     }
     this.shift_indexes(i+1, last-first);
   }
-
+}
 
 
 
@@ -303,13 +314,14 @@ class Editor extends Component {
 
       <form onSubmit={this.handleSubmit}>
         <label>
-          ID: 
+          ID:
           <input type="text" value={this.state.value} onChange={this.handleChange} />
         </label>
         <input type="submit" value="Submit" />
       </form>
       </div>    );
   }
+>>>>>>> 74b385e854e727ef976db004010d5b5c5c4ce0c2
 }
 
 export default Editor;
