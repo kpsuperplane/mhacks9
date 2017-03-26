@@ -156,7 +156,6 @@ onChangeSelection(range, source, editor){
   }else{
     if(this.state.selected != null) this.setState({selected: null});
   }
-
 }
 
 changeState(){
@@ -180,6 +179,8 @@ shift_indexes(start_index, amount){
 
 delete_range(first, last){
   var diff = last-first;
+  first = 0;
+  last = 5;
   for(var i = 0 ; i < this.audio_segments.length; i++){
     var idx1 = this.audio_segments[i][0];
     var idx2 = this.audio_segments[i][1];
@@ -315,7 +316,6 @@ add_range(first, last, video){
       </form>
       </div>    );
   }
->>>>>>> 74b385e854e727ef976db004010d5b5c5c4ce0c2
 }
 
 export default Editor;
