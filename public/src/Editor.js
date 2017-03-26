@@ -62,7 +62,7 @@ class Editor extends Component {
       ctx.recorder.addEventListener('stop', () => {
         clearInterval(ctx.recordingTimer);
         ctx.setState({recordingLength: 0, recording: false});
-      })
+      });
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
           //const editor = ctx.refs.editor.getEditor();
@@ -73,6 +73,11 @@ class Editor extends Component {
           //console.log(changes[i]);
         }*/
         ctx.currentAudio = res.body.webm_path;
+        if(typeof ctx.saveAudio == "function"){
+          ctx.saveAudio();
+          ctx.saveAudio = null;
+        }
+
         //console.log(ctx.audio_segments);
         //console.log(this.refs.editor.getEditor().getContents());
       });
@@ -101,16 +106,26 @@ componentWillUnmount(){
 stopTyping(content){
   if(this.timeout !== null) clearTimeout(this.timeout);
   this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
+  const curIndex = this.refs.editor.getEditor().getSelection().index;
+  if(this.deltas.length > 0){
+    this.range = [this.state.curRecordIndex, curIndex];
+    const ctx = this;
+    ctx.saveAudio = (function(range){
+      console.log(ctx.currentAudio);
+      var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").push();
+      fireBaseRef.set({
+        begin: ctx.range[0],
+        end: ctx.range[1],
+        file: ctx.currentAudio
+      });
+    }).bind(this);
+  }
   if(this.recorder.state === "recording") this.recorder.stop();
   this.recorder.start();
   for(var i = 0 ; i < this.deltas.length; i++){
     this.state.theDeltas.push(this.deltas[i]);
   }
-  const curIndex = this.refs.editor.getEditor().getSelection().index;
-  if(this.deltas.length > 0){
-    const range = [this.state.curRecordIndex, curIndex];
-    const ctx = this;
-    this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
+    /*this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
       var recordings = snapshot.val();
       ctx.audio_segments = [[0,6,"asd"],[6,10,"asd"]];
       for (var recording in recordings){
@@ -118,19 +133,18 @@ stopTyping(content){
         ctx.audio_segments.push([curRec.begin,curRec.end,curRec.file]);
       }
       console.log(ctx.audio_segments);
-      ctx.add_range(ctx.lastIndex, curIndex, ctx.currentAudio);
+      ctx.add_range(range[0], range[1], ctx.currentAudio);
       console.log(ctx.audio_segments);
+      var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").set({});
       for(var curSeg of ctx.audio_segments){
-        var fireBaseRef = this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").push();
+        var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").push();
         fireBaseRef.set({
           begin: curSeg[0],
           end: curSeg[1],
           file: curSeg[2]
-        })
+        });
       }
-    });
-  });
-}
+    });*/
 this.deltas = [];
 this.lastIndex = curIndex;
 this.timeout = null;
@@ -217,7 +231,8 @@ add_range(first, last, video){
   console.log(last);
   if(last > first){
     var charCount = this.refs.editor.getEditor().getLength() -1;
-    if(first == charCount){//we are appending the new video clip to the end of the document
+    console.log(charCount);
+    if(last == charCount){//we are appending the new video clip to the end of the document
       this.audio_segments.push([first,last,video]);
       console.log("added");
     }else{
@@ -309,7 +324,7 @@ render() {
     <button onClick={() => this.props.exit()}>My Documents</button>
     </Navbar>
     <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
-    <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
+    <Highlight uid={this.uid} session={this.session} data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
     {this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
     <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
 
