@@ -28,6 +28,9 @@ class Editor extends Component {
     }
     this.video_segments = [[0,6,"213"],[6,9,"264"]];
 
+    this.add_range = this.add_range.bind(this);
+    this.shift_indexes = this.shift_indexes.bind(this);
+
     this.deltas = [];
     this.lastIndex = 0;
     this.onChange = this.onChange.bind(this);
@@ -53,7 +56,7 @@ class Editor extends Component {
           var hi = editor.getContents();
           var changes = ctx.state.theDeltas;
           for(var i = 0 ; i < changes.length; i ++){
-            //add_range(changes[i][0][res.body.webm_path]);
+            ctx.add_range(changes[i][0][res.body.webm_path]);
           }
           console.log(res.body.webm_path);
           console.log(ctx.state.theDeltas);
@@ -63,7 +66,6 @@ class Editor extends Component {
       }
     });
     this.timeout = null;
-
   }
 
   componentDidMount(){
@@ -139,7 +141,6 @@ class Editor extends Component {
     }
   }
 
-
   shift_indexes(start_index, amount){
     for(var i = start_index; i < this.video_segments.length; i++){
       this.video_segments[i][0] += amount;
@@ -184,6 +185,7 @@ class Editor extends Component {
         }
       }
     }
+    this.shift_indexes(i+1, last-first);
   }
 
 
