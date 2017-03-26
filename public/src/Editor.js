@@ -108,7 +108,7 @@ stopTyping(content){
   }
   const curIndex = this.refs.editor.getEditor().getSelection().index;
   if(this.deltas.length > 0){
-
+    const range = [this.state.curRecordIndex, curIndex];
     const ctx = this;
     this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
       var recordings = snapshot.val();
