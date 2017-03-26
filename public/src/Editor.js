@@ -35,6 +35,7 @@ class Editor extends Component {
 
     this.deltas = [];
     this.lastIndex = 0;
+    this.onResize = this.onResize.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
     this.database = firebase.database();
