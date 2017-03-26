@@ -4,12 +4,14 @@ import WaveformData from "waveform-data";
 import Tooltip from "./Tooltip";
 import Highlight from "./Highlight";
 import * as firebase from "firebase";
+import Navbar from "./Navbar";
 import request from "superagent";
 import './Editor.css';
-import './Components.css';
+import './App.css';
 import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.core.css';
 import ChangeMode from './ChangeMode.js';
+import Record from "react-icons/lib/md/adjust";
 
 class Editor extends Component {
   constructor(){
@@ -22,7 +24,8 @@ class Editor extends Component {
       selectedPosition: {x:0, y:0},
       editMode: true,
       theDeltas: [],
-      video_segments: [[0,6,"213"],[6,9,"264"]]
+      video_segments: [[0,6,"213"],[6,9,"264"]],
+      recordingLength: 0
     }
 
 
@@ -32,10 +35,19 @@ class Editor extends Component {
     this.onChangeSelection = this.onChangeSelection.bind(this);
     this.database = firebase.database();
     this.uid = firebase.auth().currentUser.uid;
+    this.recordingTimer = null;
     this.session = localStorage.getItem("session") || (localStorage.setItem("session", (new Date()).getTime()), localStorage.getItem("session"));
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
+      ctx.recorder.addEventListener('start', () => {
+        ctx.setState({recordingLength: 0});
+        ctx.recordingTimer = setInterval(() => ctx.setState({recordingLength: ctx.state.recordingLength + 1}), 1000);
+      });
+      ctx.recorder.addEventListener('stop', () => {
+        clearInterval(ctx.recordingTimer);
+        ctx.setState({recordingLength: 0});
+      })
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
           var hi = editor.getContents();
@@ -57,10 +69,17 @@ class Editor extends Component {
   componentDidMount(){
     this.setState({editor: this.refs.editor.getEditor()});
     const editor = this.refs.editor.getEditor();
+    const ctx = this;
     this.database.ref("users/"+this.uid+"/"+this.session).once('value').then(function (snapshot) {
       const data = snapshot.val() || {recordings: [], content: []};
       editor.setContents(data.content);
+      ctx.onResize();
     });
+    window.addEventListener('resize', this.onResize);
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener('resize', this.onResize);
   }
 
   stopTyping(content){
@@ -69,6 +88,7 @@ class Editor extends Component {
     console.log("Uid: " + this.uid);
     this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
     if(this.recorder.state === "recording") this.recorder.stop();
+    this.recorder.start();
 
     for(var i = 0 ; i < this.deltas.length; i++){
       this.state.theDeltas.push(this.deltas[i]);
@@ -86,7 +106,10 @@ class Editor extends Component {
     this.deltas.push(delta.ops);
     const {recorder, timeout} = this;
     const ctx = this;
-    if(timeout === null) recorder.start();
+    if(timeout === null){
+      if(this.recorder.state === "recording") this.recorder.stop();
+      recorder.start();
+    }
     if(timeout !== null) clearTimeout(timeout);
     this.lastIndex = this.refs.editor.getEditor().getSelection().index;
     this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
@@ -166,6 +189,13 @@ class Editor extends Component {
 
 
 
+  onResize(){
+    const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
+    const editorContainer = document.getElementsByClassName('ql-editor')[0];
+    toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
+    editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
+    editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
+  }
 /*
   var video_segments = [[0,6,"213"],[6,9,"264"]];
 
@@ -221,8 +251,12 @@ class Editor extends Component {
 
   render() {
     return (
-      <div className="container">
-        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
+      <div>
+        <Navbar>
+          <ChangeMode changeState={this.changeState.bind(this)}/>
+          <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
+        </Navbar>
+        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
         <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
