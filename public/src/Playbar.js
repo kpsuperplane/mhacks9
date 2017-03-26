@@ -13,9 +13,19 @@ class Playbar extends Component {
         this.state = {
             playing: false
         }
+        if(this.props.end != null) this.audioObject = new Audio(this.props.audio);
         this.playAudio = this.playAudio.bind(this);
     }
     playAudio(){
+        const state = !this.state.playing;
+        console.log(this.audioObject);
+        if(state){
+            this.audioObject.play();
+        }else{ 
+            this.audioObject.pause();
+            this.audioObject.currentTime = 0;
+            this.audioObject.load();
+        }
         this.setState({playing: !this.state.playing});
     }
     render() {
@@ -43,7 +53,7 @@ class Playbar extends Component {
                 startIndexPosition = editor.getBounds(index, 0);
             }
             lastTop = startIndexPosition.top;
-            lines.push(<div key={"indicator-"+index} className={"indicator" + (this.props.end === null ? " current" : "")} style={{left: firstPosition.left + firstPosition.width, width: (firstPosition.top === endIndexPosition.top) ? (endIndexPosition.left - firstPosition.left):(editor.getBounds(Math.max(index-1 ,0)).left - firstPosition.left), top: firstPosition.top}} >{(firstLoop) ? <button className="toggle-play" onClick={this.playAudio}>{this.state.playing ? <Stop /> : <Play />}</button> : null}</div>);
+            lines.push(<div key={"indicator-"+index} className={"indicator" + (this.props.end === null ? " current" : "") + (this.state.playing? " active": "")} style={{left: firstPosition.left + firstPosition.width, width: (firstPosition.top === endIndexPosition.top) ? (endIndexPosition.left - firstPosition.left):(editor.getBounds(Math.max(index-1 ,0)).left - firstPosition.left), top: firstPosition.top}} >{(firstLoop && this.props.end !== null) ? <button className="toggle-play" onClick={this.playAudio}>{this.state.playing ? <Stop /> : <Play />}</button> : null}</div>);
             firstLoop = false;
             if(firstPosition.top >= endIndexPosition.top) break;
             

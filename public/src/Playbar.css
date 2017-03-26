@@ -37,6 +37,9 @@
     transform:scale(0.8);
     opacity:1;
 }
+.indicator.active{
+    background:#09A7DB;
+}
 .indicator:not(.current):hover{
     background:#09A7DB;
 }

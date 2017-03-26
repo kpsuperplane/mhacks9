@@ -19,7 +19,7 @@ export default class Documents extends Component {
 	render() {
 		const {load} = this.props;
 		return (
-			<div>
+			<div className="docs">
 				<h2> Select a Document</h2>
 				{
 					Object.keys(this.state.documentsList).map(function(key, index) {

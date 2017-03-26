@@ -326,7 +326,6 @@ render() {
     <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
     <Highlight uid={this.uid} session={this.session} data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
     {this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
-    <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
 
     <form onSubmit={this.handleSubmit}>
     <label>
