@@ -12,3 +12,6 @@
 .ql-editor p{
   font-size:1.2em !important;
 }
+.recording-indicator.active{
+  color:#E32D2D;
+}

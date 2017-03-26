@@ -24,7 +24,8 @@ class Editor extends Component {
       selectedPosition: {x:0, y:0},
       editMode: true,
       theDeltas: [],
-      recordingLength: 0
+      recordingLength: 0,
+      recording: false
     }
     this.video_segments = [[0,6,"213"],[6,9,"264"]];
 
@@ -43,12 +44,12 @@ class Editor extends Component {
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
       ctx.recorder.addEventListener('start', () => {
-        ctx.setState({recordingLength: 0});
+        ctx.setState({recordingLength: 0, recording: true});
         ctx.recordingTimer = setInterval(() => ctx.setState({recordingLength: ctx.state.recordingLength + 1}), 1000);
       });
       ctx.recorder.addEventListener('stop', () => {
         clearInterval(ctx.recordingTimer);
-        ctx.setState({recordingLength: 0});
+        ctx.setState({recordingLength: 0, recording: false});
       })
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
@@ -254,7 +255,7 @@ class Editor extends Component {
       <div>
         <Navbar>
           <ChangeMode changeState={this.changeState.bind(this)}/>
-          <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
+          <button className={"recording-indicator" + (this.state.recording ? " active" : "")}><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
         </Navbar>
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="bubble" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
