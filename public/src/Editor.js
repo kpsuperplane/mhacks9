@@ -130,12 +130,20 @@ class Editor extends Component {
     }
     
     if(timeout !== null) clearTimeout(timeout);
-    this.lastIndex = this.refs.editor.getEditor().getSelection().index;
     this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
   }
 
   onChangeSelection(range, source, editor){
-    if(range && Math.abs(this.lastIndex - range.index) > 2) this.stopTyping(editor.getContents());
+    if(range && Math.abs(this.lastIndex - range.index) > 2){
+        if(this.timeout === null){
+          this.lastIndex = range.index;
+          this.setState({curRecordIndex: range.index});
+        }else{
+          this.stopTyping(editor.getContents());
+        }
+    }else{
+          this.lastIndex = range.index;
+    }
     if(range && range.length > 1){
       const content = editor.getText(range.index, range.length);
       const location = editor.getBounds(range.index, range.length);
