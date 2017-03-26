@@ -3,7 +3,13 @@ import './Tooltip.css';
 import request from "superagent";
 
 class App extends Component {
-
+    constructor(props){
+	super(props);
+	this.state = {
+		imageurl: null,
+		lastContent: null
+	};
+    }
     wolframRequest(query, callback) {
       request.get("https://mhacks.1lab.me/wolfram")
         .query({
@@ -15,11 +21,18 @@ class App extends Component {
     getData(data){
       const ctx = this; 
       this.wolframRequest(data, (err, result) => {
-        this.setState({data: JSON.parse(result.text).queryresult.pods[1].subpods[0].img.src}); 
-        console.log(JSON.parse(result.text).queryresult.pods[1].subpods[0].img.src);
-        return data; 
+       ctx.setState({lastContent: data, imageurl: JSON.parse(result.text).queryresult.pods[1].subpods[0].img.src});
       });
     }
+  componentDidMount(){
+	this.componentDidUpdate();
+  }
+  componentDidUpdate(){
+	if(this.props.content && this.state.lastContent !== this.props.content){
+		this.setState({lastContent: this.props.content, imageurl: null});
+		this.getData(this.props.content);
+	}
+  }
   render() {
     const quillContents = document.getElementsByClassName('quill-contents');
     const offset = quillContents.length ? quillContents[0].getBoundingClientRect().top : 0;
@@ -33,7 +46,7 @@ class App extends Component {
             left: (this.props.position.x / window.outerWidth) * 200 + (window.outerWidth - this.props.width / 2) + 5 + "%"}}></div>
           <div className="tooltip">
             <h4 className="title">{this.props.content}</h4>
-            <img alt="Wolfram Alpha Search Result" src={this.props.content === null ? '' : this.getData(this.props.content)} />
+	    {this.state.imageurl === undefined || this.state.imageurl === null ? "Loading..." : <img alt="Wolfram Alpha Search Result" src={this.state.imageurl} />}
         </div>
       </div>
     );

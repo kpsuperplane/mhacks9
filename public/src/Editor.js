@@ -88,8 +88,6 @@ class Editor extends Component {
 
   stopTyping(content){
     if(this.timeout !== null) clearTimeout(this.timeout);
-    console.log("Session: " + this.session);
-    console.log("Uid: " + this.uid);
     this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
     if(this.recorder.state === "recording") this.recorder.stop();
     this.recorder.start();
@@ -217,7 +215,7 @@ class Editor extends Component {
           <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
           <ReactAudioPlayer src={this.currentAudio} autoPlay/>
         </Navbar>
-        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow" />
+        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
         <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
