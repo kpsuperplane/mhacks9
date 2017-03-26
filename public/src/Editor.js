@@ -23,8 +23,10 @@ class Editor extends Component {
       curRecordIndex: 0,
       selectedPosition: {x:0, y:0},
       editMode: true,
+      theDeltas: [],
       recordingLength: 0
     }
+    this.video_segments = [[0,6,"213"],[6,9,"264"]];
 
     this.deltas = [];
     this.lastIndex = 0;
@@ -47,8 +49,15 @@ class Editor extends Component {
       })
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
+          const editor = this.refs.editor.getEditor();
+          var hi = editor.getContents();
+          var changes = ctx.state.theDeltas;
+          for(var i = 0 ; i < changes.length; i ++){
+            //add_range(changes[i][0][res.body.webm_path]);
+          }
           console.log(res.body.webm_path);
-          //console.log(this.refs.editor.getEditor().getContents());
+          console.log(ctx.state.theDeltas);
+          console.log(this.refs.editor.getEditor().getContents());
         });
         new Audio(window.URL.createObjectURL(e.data)).play();
       }
@@ -81,17 +90,9 @@ class Editor extends Component {
     if(this.recorder.state === "recording") this.recorder.stop();
     this.recorder.start();
 
-    var theDeltas = [];
     for(var i = 0 ; i < this.deltas.length; i++){
-      theDeltas.push(this.deltas[i]);
+      this.state.theDeltas.push(this.deltas[i]);
     }
-    console.log(theDeltas);
-    var array = [[0,5,"bold"]];
-    for(var i = 0 ; i < theDeltas.length; i++){
-
-    }
-
-
 
     const curIndex = this.refs.editor.getEditor().getSelection().index;
     this.deltas = [];
@@ -129,10 +130,64 @@ class Editor extends Component {
   changeState(){
     if(this.state.editMode){
       this.setState({editMode: false});
+      this.editor.enable(false);
+      console.log(false);
     }else{
       this.setState({editMode: true});
+      this.editor.enable(true);
+      console.log(true);
     }
   }
+
+
+  shift_indexes(start_index, amount){
+    for(var i = start_index; i < this.video_segments.length; i++){
+      this.video_segments[i][0] += amount;
+      this.video_segments[i][1] += amount;
+    }
+  }
+
+  delete_range(first, last){
+    var diff = last-first;
+    for(var i = 0 ; i < this.video_segments.length; i++){
+      var idx1 = this.video_segments[i][0];
+      var idx2 = this.video_segments[i][1];
+      if(first >= idx1 && last < idx2){
+        if(first === idx1){
+          if(diff === idx2 - idx1){
+            //this catches the case where the entire deletion makes up the entire segment
+          }else{
+            this.video_segments[i][1] = idx2 - diff;
+          }
+        }else{
+          this.video_segments[i][1] = idx2 - diff;
+          //delete the current range and proceed to shift everything left by n characters
+        }
+        this.shift_indexes(i+1, diff);
+      }
+    }
+    console.log(this.video_segments);
+  }
+
+  add_range(first, last, video){
+    if(first === this.video_segments.length){//we are appending the new video clip to the end of the document
+      this.video_segments.push([first,last,video]);
+    }else{
+      for(var i = 0 ; i < this.video_segments.length; i++){
+        var idx1 = this.video_segments[i][0];
+        var idx2 = this.video_segments[i][1];
+        if(first >= idx1 && last < idx2){
+          //this shrinks the first range and then pushes two extra ranges to. (effectively a split)
+          this.video_segments[i][1] = first;
+          this.video_segments.push([first,last,video]);
+          this.video_segments.push([last,idx2 + 1,this.video_segments[i][2]]);
+        }
+      }
+    }
+  }
+
+
+
 
   onResize(){
     const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
@@ -141,7 +196,6 @@ class Editor extends Component {
     editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
     editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
   }
-
 /*
   var video_segments = [[0,6,"213"],[6,9,"264"]];
 
@@ -200,11 +254,12 @@ class Editor extends Component {
       <div>
         <Navbar>
           <ChangeMode changeState={this.changeState.bind(this)}/>
-          <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button> 
+          <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
         </Navbar>
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
+        <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
       </div>
     )
   }

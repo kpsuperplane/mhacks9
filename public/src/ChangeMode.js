@@ -16,9 +16,6 @@ export default class ChangeMode extends Component {
     }
     this.props.changeState();
   }
-
-
-
   render () {
     return (
       <button type="submit" onClick={() => this.handleClick()} className="btn btn-primary">{this.state.btn}</button>
