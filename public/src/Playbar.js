@@ -10,16 +10,30 @@ class Playbar extends Component {
         }
     }
     render() {
-        if(this.props.editor == null) return null;
+        if(this.props.editor === null) return null;
         const {editor} = this.props;
-        const startIndexPosition = editor.getBounds(this.props.start, 0);
+        let index = this.props.start; 
+        let lastTop = -10;
+        let startIndexPosition = editor.getBounds(index, 0);
         let endIndexPosition = {...startIndexPosition};
         endIndexPosition.left += 10;
         if(editor.getSelection() !== null && editor.getSelection().index !== this.props.start){
             const endIndex = (this.props.end !== null ? this.props.end : editor.getSelection().index);
             endIndexPosition = editor.getBounds(endIndex, 0);
         }
-        return (<div className={"indicator" + (this.props.end == null ? " current" : "")} style={{left: startIndexPosition.left + startIndexPosition.width, width: endIndexPosition.left - startIndexPosition.left, top: startIndexPosition.top}} />);
+        let lines = [];
+        while(true){
+            const firstPosition = editor.getBounds(index, 0);
+            while(startIndexPosition.top === lastTop){
+                index++;
+                startIndexPosition = editor.getBounds(index, 0);
+            }
+            lastTop = startIndexPosition.top;
+            lines.push(<div key={"indicator-"+index} className={"indicator" + (this.props.end === null ? " current" : "")} style={{left: firstPosition.left + firstPosition.width, width: (firstPosition.top === endIndexPosition.top) ? (endIndexPosition.left - firstPosition.left):(editor.getBounds(index-1).left - firstPosition.left), top: firstPosition.top}} />);
+            if(firstPosition.top >= endIndexPosition.top) break;
+            
+        }
+        return <div>{lines}</div>;
     }
 }
 
