@@ -11,7 +11,7 @@ export default class Navbar extends Component {
 			<div className="navbar">
                 <div className="container">
                     <div className="inner-container">
-                        <h4>MHacks 9</h4>
+                        <h4>Recap</h4>
                         <div className="navbar-right">
                             {this.props.children}
                             <Logout />

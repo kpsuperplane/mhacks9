@@ -28,7 +28,7 @@ class App extends Component {
 	this.componentDidUpdate();
   }
   componentDidUpdate(){
-	if(this.state.lastContent !== this.props.content){
+	if(this.props.content && this.state.lastContent !== this.props.content){
 		this.setState({lastContent: this.props.content, imageurl: null});
 		this.getData(this.props.content);
 	}
