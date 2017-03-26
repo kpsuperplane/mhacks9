@@ -27,7 +27,6 @@ class App extends Component {
     const quillContents = document.getElementsByClassName('quill-contents');
     const offset = quillContents.length ? quillContents[0].getBoundingClientRect().top : 0;
     const containerLeft = Math.min(Math.max(this.props.position.x - 225, 10), window.outerWidth - 235);
-    const data;
     return (
       <div className={"tooltip-container " + (this.props.content === null || "visible")}
         style={{top: this.props.position.y + offset + 2,
