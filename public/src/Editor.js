@@ -48,7 +48,7 @@ class Editor extends Component {
   componentDidMount(){
     this.setState({editor: this.refs.editor.getEditor()});
     const editor = this.refs.editor.getEditor();
-    this.database.ref("users/"+this.uid+this.session).once('value').then(function (snapshot) {
+    this.database.ref("users/"+this.uid+"/"+this.session).once('value').then(function (snapshot) {
       const data = snapshot.val() || {recordings: [], content: []};
       editor.setContents(data.content);
     });
@@ -56,7 +56,9 @@ class Editor extends Component {
 
   stopTyping(content){
     if(this.timeout !== null) clearTimeout(this.timeout);
-    this.database.ref("users/"+this.uid+this.session+"/content").set(content.ops);
+    console.log("Session: " + this.session);
+    console.log("Uid: " + this.uid);
+    this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
     if(this.recorder.state === "recording") this.recorder.stop();
 
     var theDeltas = [];
