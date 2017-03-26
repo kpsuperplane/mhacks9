@@ -44,6 +44,10 @@ class Editor extends Component {
     this.recordingTimer = null;
     this.session = localStorage.getItem("session") || (localStorage.setItem("session", (new Date()).getTime()), localStorage.getItem("session"));
     const ctx = this;
+    this.timeout = null;
+  }
+  componentWillMount(){
+    const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
       ctx.recorder.addEventListener('start', () => {
@@ -70,9 +74,7 @@ class Editor extends Component {
         new Audio(window.URL.createObjectURL(e.data)).play();
       }
     });
-    this.timeout = null;
   }
-
   componentDidMount(){
     this.setState({editor: this.refs.editor.getEditor()});
     const editor = this.refs.editor.getEditor();
@@ -118,14 +120,22 @@ class Editor extends Component {
     if(timeout === null){
       if(this.recorder.state === "recording") this.recorder.stop();
       recorder.start();
+      const curIndex = editor.getSelection().index - 1;
+      console.log(curIndex, this.lastIndex);
+      if(curIndex != this.lastIndex){
+        this.stopTyping(editor.getContents());
+        this.lastIndex = curIndex;
+        this.setState({curRecordIndex: curIndex});
+      }
     }
+    
     if(timeout !== null) clearTimeout(timeout);
     this.lastIndex = this.refs.editor.getEditor().getSelection().index;
     this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
   }
 
   onChangeSelection(range, source, editor){
-    if(range && Math.abs(this.lastIndex - range.index) > 10) this.stopTyping(editor.getContents());
+    if(range && Math.abs(this.lastIndex - range.index) > 2) this.stopTyping(editor.getContents());
     if(range && range.length > 1){
       const content = editor.getText(range.index, range.length);
       const location = editor.getBounds(range.index, range.length);
@@ -221,7 +231,6 @@ class Editor extends Component {
       <div>
         <Navbar>
           <ChangeMode changeState={this.changeState.bind(this)}/>
-          <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
           <ReactAudioPlayer src={this.currentAudio} autoPlay/>
           <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
         </Navbar>

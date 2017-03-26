@@ -12,6 +12,14 @@
 .ql-editor p{
   font-size:1.2em !important;
 }
+.ql-editor li{
+  padding-left:2em !important;
+  font-size:1.2em !important;
+}
+.ql-editor li:not(.ql-direction-rtl)::before{
+  margin-left: -2em !important;
+  padding-right:0.5em !important;
+}
 .recording-indicator.active, .recording-indicator.active:hover{
   color:#E32D2D !important;
 }

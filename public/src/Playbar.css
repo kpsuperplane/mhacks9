@@ -1,8 +1,10 @@
 .indicator{
     position:absolute;
-    height:1px;
+    height:3px;
     width: 3px;
+    border-radius:1.5px;
     background: #AAA;
+    transition: all 150ms;
 }
 .indicator.current{
     background: #efa904;
