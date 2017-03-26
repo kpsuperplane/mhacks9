@@ -27,9 +27,9 @@ class App extends Component {
     this.onChangeSelection = this.onChangeSelection.bind(this);
     
     firebase.initializeApp({
-        apiKey: "AIzaSyCze4etK0LSwjFrwjKtJyMIIcLBPdIi9mw",
-        authDomain: "mhacks9-162605.firebaseio.com",
-        databaseURL: "mhacks9-162605.firebaseapp.com"
+        apiKey: "AIzaSyBPXxoydRC52Y5Xz4fhPxYSo54_j4knBO4",
+        authDomain: "mhacks9-bfe7d.firebaseapp.com",
+        databaseURL: "https://mhacks9-bfe7d.firebaseio.com"
     });
 
     const ctx = this;

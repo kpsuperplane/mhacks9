@@ -11,7 +11,8 @@ export default class Login extends Component {
 			var user = result.user;
 			console.log(user);
 		}).catch(function(error) {
-			console.error(error);
+			console.log(error.code);
+			console.log(error.message);
 		});
 	}
 
