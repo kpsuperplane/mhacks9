@@ -66,8 +66,19 @@ class Editor extends Component {
       }
     });
     this.timeout = null;
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  handleChange(event) {
+    this.setState({value: event.target.value});
+  }
+
+  handleSubmit(event) {
+    console.log(this.state.value);
+    event.preventDefault();
+  }
   componentDidMount(){
     this.setState({editor: this.refs.editor.getEditor()});
     const editor = this.refs.editor.getEditor();
@@ -250,6 +261,7 @@ class Editor extends Component {
 
 
   render() {
+    console.log(this.state.selectedPosition);
     return (
       <div>
         <Navbar>
@@ -260,8 +272,15 @@ class Editor extends Component {
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
         <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
-      </div>
-    )
+
+      <form onSubmit={this.handleSubmit}>
+        <label>
+          ID: 
+          <input type="text" value={this.state.value} onChange={this.handleChange} />
+        </label>
+        <input type="submit" value="Submit" />
+      </form>
+      </div>    );
   }
 }
 

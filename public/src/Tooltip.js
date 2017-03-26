@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './Tooltip.css';
 import request from "superagent";
 
-class App extends Component {
+class Tooltip extends Component {
     constructor(props){
 	super(props);
 	this.state = {
@@ -37,11 +37,11 @@ class App extends Component {
     const quillContents = document.getElementsByClassName('quill-contents');
     const offset = quillContents.length ? quillContents[0].getBoundingClientRect().top : 0;
     const containerLeft = Math.min(Math.max(this.props.position.x - 225, 10), window.outerWidth - 235);
+    console.log(window.innerWidth);
     return (
       <div className={"tooltip-container " + (this.props.content === null || "visible")}
         style={{top: this.props.position.y + offset + 2,
-                left: (this.props.position.x / window.outerWidth) + 400* 100 + "%", 
-                transformOrigin: ((this.props.position.x - containerLeft - 10)/this.props.position.x)+"% 0%"}}>
+                left: this.props.position.x + "px"}}>
           <div className="tooltip-arrow" style={{
             left: (this.props.position.x / window.outerWidth) * 100 + "%"}}></div>
           <div className="tooltip">
@@ -53,4 +53,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default Tooltip;
