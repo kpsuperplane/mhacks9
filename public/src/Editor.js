@@ -258,7 +258,7 @@ class Editor extends Component {
           <ChangeMode changeState={this.changeState.bind(this)}/>
           <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
         </Navbar>
-        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow" />
+        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="bubble" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
         <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
