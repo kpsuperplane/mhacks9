@@ -41,9 +41,9 @@ class Editor extends Component {
     this.uid = firebase.auth().currentUser.uid;
     this.recordingTimer = null;
     if (this.props.session === "new") {
-	    this.session = new Date().getTime();
+      this.session = new Date().getTime();
     } else {
-	    this.session = this.props.session;
+      this.session = this.props.session;
     }
     const ctx = this;
     this.timeout = null;
@@ -109,27 +109,29 @@ stopTyping(content){
     const ctx = this;
     this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
       var recordings = snapshot.val();
-      ctx.audio_segments = [""];
+      ctx.audio_segments = [[0,6,"asd"],[6,10,"asd"]];
       for (var recording in recordings){
         var curRec = recordings[recording];
         ctx.audio_segments.push([curRec.begin,curRec.end,curRec.file]);
       }
       console.log(ctx.audio_segments);
-      ctx.add_range(ctx.state.curRecordIndex, curIndex, ctx.currentAudio);
+      ctx.add_range(ctx.lastIndex, curIndex, ctx.currentAudio);
       console.log(ctx.audio_segments);
+      for(var curSeg of ctx.audio_segments){
+        var fireBaseRef = this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").push();
+        fireBaseRef.set({
+          begin: curSeg[0],
+          end: curSeg[1],
+          file: curSeg[2]
+        })
+      }
     });
-
-    /*var fireBaseRef = this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").push();
-    fireBaseRef.set({
-    begin: this.state.curRecordIndex,
-    end: curIndex,
-    file: this.currentAudio
-  });*/
-  }
-  this.deltas = [];
-  this.lastIndex = curIndex;
-  this.timeout = null;
-  this.setState({curRecordIndex: curIndex});
+  });
+}
+this.deltas = [];
+this.lastIndex = curIndex;
+this.timeout = null;
+this.setState({curRecordIndex: curIndex});
 }
 
 onChange(content, delta, source, editor){
@@ -211,20 +213,16 @@ add_range(first, last, video){
   console.log(first);
   console.log(last);
   if(last > first){
-    console.log(first);
-    console.log(last);
-    var charCount = this.refs.editor.getEditor().getLength();
+    var charCount = this.refs.editor.getEditor().getLength() -1;
     if(first == charCount){//we are appending the new video clip to the end of the document
       this.audio_segments.push([first,last,video]);
       console.log("added");
     }else{
       console.log("added2");
-      for(var i = 0 ; i < charCount; i++){
-        break;
+      for(var i = 0 ; i < this.audio_segments.length; i++){
         var idx1 = this.audio_segments[i][0];
         var idx2 = this.audio_segments[i][1];
         if(first >= idx1 && last < idx2){
-          console.log("hi");
           //this shrinks the first range and then pushes two extra ranges to. (effectively a split)
           this.audio_segments[i][1] = first;
           this.audio_segments.push([first,last,video]);
@@ -238,90 +236,90 @@ add_range(first, last, video){
 
 
 
-  onResize(){
-    const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
-    const editorContainer = document.getElementsByClassName('ql-editor')[0];
-    toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
-    editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
-    editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
-    let selectedPosition = this.state.selectedPosition;
-    selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
-    this.setState({ lastSize: window.innerWidth, selectedPosition: selectedPosition });
-  }
+onResize(){
+  const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
+  const editorContainer = document.getElementsByClassName('ql-editor')[0];
+  toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
+  editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
+  editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
+  let selectedPosition = this.state.selectedPosition;
+  selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
+  this.setState({ lastSize: window.innerWidth, selectedPosition: selectedPosition });
+}
 /*
-  var video_segments = [[0,6,"213"],[6,9,"264"]];
+var video_segments = [[0,6,"213"],[6,9,"264"]];
 
-  var shift_indexes = function(start_index, amount){
-    for(var i = start_index; i < video_segments.length; i++){
-      video_segments[i][0] += amount;
-      video_segments[i][1] += amount;
-    }
-  };
-
-
-  var delete_range = function(first, last){
-    var diff = last-first;
-    for(var i = 0 ; i < video_segments.length; i++){
-      var idx1 = video_segments[i][0];
-      var idx2 = video_segments[i][1];
-      if(first >= idx1 && last < idx2){
-        if(first == idx1){
-          if(diff == idx2 - idx1){
-            //this catches the case where the entire deletion makes up the entire segment
-          }else{
-            video_segments[i][1] = idx2 - diff;
-          }
-        }else{
-          video_segments[i][1] = idx2 - diff;
-          //delete the current range and proceed to shift everything left by n characters
-        }
-        shift_indexes(i+1, diff);
-      }
-    }
-    console.log(video_segments);
-  };
+var shift_indexes = function(start_index, amount){
+for(var i = start_index; i < video_segments.length; i++){
+video_segments[i][0] += amount;
+video_segments[i][1] += amount;
+}
+};
 
 
-  var add_range = function(first, last, video){
-    if(first == video_segments.length){//we are appending the new video clip to the end of the document
-      video_segments.push([first,last,video]);
-    }else{
-      for(var i = 0 ; i < video_segments.length; i++){
-        var idx1 = video_segments[i][0];
-        var idx2 = video_segments[i][1];
-        if(first >= idx1 && last < idx2){
-          //this shrinks the first range and then pushes two extra ranges to. (effectively a split)
-          video_segments[i][1] = first;
-          video_segments.push([first,last,video]);
-          video_segments.push([last,idx2 + 1,video_segments[i][2]]);
-        }
-      }
-    }
-  };*/
+var delete_range = function(first, last){
+var diff = last-first;
+for(var i = 0 ; i < video_segments.length; i++){
+var idx1 = video_segments[i][0];
+var idx2 = video_segments[i][1];
+if(first >= idx1 && last < idx2){
+if(first == idx1){
+if(diff == idx2 - idx1){
+//this catches the case where the entire deletion makes up the entire segment
+}else{
+video_segments[i][1] = idx2 - diff;
+}
+}else{
+video_segments[i][1] = idx2 - diff;
+//delete the current range and proceed to shift everything left by n characters
+}
+shift_indexes(i+1, diff);
+}
+}
+console.log(video_segments);
+};
+
+
+var add_range = function(first, last, video){
+if(first == video_segments.length){//we are appending the new video clip to the end of the document
+video_segments.push([first,last,video]);
+}else{
+for(var i = 0 ; i < video_segments.length; i++){
+var idx1 = video_segments[i][0];
+var idx2 = video_segments[i][1];
+if(first >= idx1 && last < idx2){
+//this shrinks the first range and then pushes two extra ranges to. (effectively a split)
+video_segments[i][1] = first;
+video_segments.push([first,last,video]);
+video_segments.push([last,idx2 + 1,video_segments[i][2]]);
+}
+}
+}
+};*/
 
 
 
-  render() {
-    return (
-      <div>
-        <Navbar>
-          <ChangeMode changeState={this.changeState.bind(this)}/>
-          <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
-	  <button onClick={() => this.props.exit()}>My Documents</button>
-        </Navbar>
-        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
-        <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
-	{this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
-        <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
+render() {
+  return (
+    <div>
+    <Navbar>
+    <ChangeMode changeState={this.changeState.bind(this)}/>
+    <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
+    <button onClick={() => this.props.exit()}>My Documents</button>
+    </Navbar>
+    <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
+    <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
+    {this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
+    <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
 
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          ID:
-          <input type="text" value={this.state.value} onChange={this.handleChange} />
-        </label>
-        <input type="submit" value="Submit" />
-      </form>
-      </div>    );
+    <form onSubmit={this.handleSubmit}>
+    <label>
+    ID:
+    <input type="text" value={this.state.value} onChange={this.handleChange} />
+    </label>
+    <input type="submit" value="Submit" />
+    </form>
+    </div>    );
   }
 }
 
