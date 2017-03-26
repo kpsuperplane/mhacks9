@@ -22,7 +22,8 @@ class Editor extends Component {
       editor: null,
       curRecordIndex: 0,
       selectedPosition: {x:0, y:0},
-      editMode: true
+      editMode: true,
+      recordingLength: 0
     }
 
     this.deltas = [];
@@ -31,10 +32,19 @@ class Editor extends Component {
     this.onChangeSelection = this.onChangeSelection.bind(this);
     this.database = firebase.database();
     this.uid = firebase.auth().currentUser.uid;
+    this.recordingTimer = null;
     this.session = localStorage.getItem("session") || (localStorage.setItem("session", (new Date()).getTime()), localStorage.getItem("session"));
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
+      ctx.recorder.addEventListener('start', () => {
+        ctx.setState({recordingLength: 0});
+        ctx.recordingTimer = setInterval(() => ctx.setState({recordingLength: ctx.state.recordingLength + 1}), 1000);
+      });
+      ctx.recorder.addEventListener('stop', () => {
+        clearInterval(ctx.recordingTimer);
+        ctx.setState({recordingLength: 0});
+      })
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
           console.log(res.body.webm_path);
@@ -69,6 +79,7 @@ class Editor extends Component {
     console.log("Uid: " + this.uid);
     this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
     if(this.recorder.state === "recording") this.recorder.stop();
+    this.recorder.start();
 
     var theDeltas = [];
     for(var i = 0 ; i < this.deltas.length; i++){
@@ -94,7 +105,10 @@ class Editor extends Component {
     this.deltas.push(delta.ops);
     const {recorder, timeout} = this;
     const ctx = this;
-    if(timeout === null) recorder.start();
+    if(timeout === null){
+      if(this.recorder.state === "recording") this.recorder.stop();
+      recorder.start();
+    }
     if(timeout !== null) clearTimeout(timeout);
     this.lastIndex = this.refs.editor.getEditor().getSelection().index;
     this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
@@ -186,7 +200,7 @@ class Editor extends Component {
       <div>
         <Navbar>
           <ChangeMode changeState={this.changeState.bind(this)}/>
-          <button><Record /></button> 
+          <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button> 
         </Navbar>
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />

@@ -36,6 +36,9 @@
     font-weight:300;
     
 }
+.navbar .navbar-right button span{
+    vertical-align: middle;
+}
 .navbar .navbar-right button:hover{
     color:#09A7DB;
 }
