@@ -9,14 +9,15 @@ export default class ChangeMode extends Component {
   }
   //this.context.state = "Study";
   handleClick() {
-    console.log("derp");
     if(this.state.btn == "Study"){
-      this.state.btn = "Edit";
+      this.setState({btn: "Edit"})
     }else{
-      this.state.btn = "Study";
+      this.setState({btn: "Study"})
     }
-
+    this.props.changeState();
   }
+
+
 
   render () {
     return (

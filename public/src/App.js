@@ -19,7 +19,8 @@ class App extends Component {
       selected: null,
       editor: null,
       curRecordIndex: 0,
-      selectedPosition: {x:0, y:0}
+      selectedPosition: {x:0, y:0},
+      editMode: true
     }
 
     this.deltas = [];
@@ -103,6 +104,16 @@ class App extends Component {
 
   }
 
+  changeState(){
+    if(this.state.editMode){
+      this.setState({editMode: false});
+    }else{
+      this.setState({editMode: true});
+    }
+    //disables wolfram alpha
+    console.log("disable the damn thing");
+  }
+
 /*
   var video_segments = [[0,6,"213"],[6,9,"264"]];
 
@@ -161,9 +172,9 @@ class App extends Component {
       <div className="app">
       <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
       <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
-      <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>
+      <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
       <Login/>
-      <ChangeMode/>
+      <ChangeMode changeState={this.changeState.bind(this)}/>
       </div>
     )
   }

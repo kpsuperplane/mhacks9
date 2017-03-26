@@ -8,8 +8,8 @@ class App extends Component {
     const offset = quillContents.length ? quillContents[0].getBoundingClientRect().top : 0;
     const containerLeft = Math.min(Math.max(this.props.position.x - 225, 10), window.outerWidth - 235);
     return (
-      <div className={"tooltip-container " + (this.props.content === null ? "" : "visible")}
-        style={{top: this.props.position.y + offset + 2, 
+      <div className={"tooltip-container " + (this.props.content === null || this.props.editMode == true ? "" : "visible")}
+        style={{top: this.props.position.y + offset + 2,
                 left: containerLeft,
                 transformOrigin: ((this.props.position.x - containerLeft - 10)/this.props.position.x)+"% 0%"}}>
           <div className="tooltip-arrow" style={{
