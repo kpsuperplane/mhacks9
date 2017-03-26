@@ -31,6 +31,7 @@ class App extends Component {
         authDomain: "mhacks9-bfe7d.firebaseapp.com",
         databaseURL: "https://mhacks9-bfe7d.firebaseio.com"
     });
+    this.database = firebase.database();
 
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
