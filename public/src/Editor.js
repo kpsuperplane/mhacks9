@@ -102,8 +102,12 @@ class Editor extends Component {
   changeState(){
     if(this.state.editMode){
       this.setState({editMode: false});
+      this.editor.enable(false);
+      console.log(false);
     }else{
       this.setState({editMode: true});
+      this.editor.enable(true);
+      console.log(true);
     }
     //disables wolfram alpha
     console.log("disable the damn thing");
@@ -168,7 +172,7 @@ class Editor extends Component {
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
-        <ChangeMode changeState={this.changeState.bind(this)}/>
+        <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
       </div>
     )
   }
