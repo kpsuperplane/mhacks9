@@ -18,14 +18,15 @@
     margin:0;
 }
 .tooltip-container{
-    z-index:-10;
+    z-index:-100;
     opacity:0;
     transform: scale(0.5);
     position: absolute;
     transition:all 150ms;
+
 }
-.tooltip-container.visible{
-    z-index:10;
+.visible{
+    z-index:100;
     transform: scale(1);
     opacity:1;
 }
