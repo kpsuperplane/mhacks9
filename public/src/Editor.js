@@ -195,6 +195,7 @@ class Editor extends Component {
     toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
     editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
     editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
+    this.forceUpdate();
   }
 /*
   var video_segments = [[0,6,"213"],[6,9,"264"]];
