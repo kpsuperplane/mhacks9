@@ -1,0 +1,44 @@
+.navbar{
+    font-size:1em;
+    background:#FFF;
+    position:relative;
+    z-index:10;
+}
+
+.navbar .inner-container{
+    margin:0 -8px;
+}
+
+.navbar h4{
+    margin:0;
+    padding:1em;
+    float:left;
+    color:#09A7DB;
+    font-size:1em;
+    font-weight:700;
+}
+.navbar .navbar-right{
+    float:right;
+}
+.navbar-clear{
+    clear: both;
+}
+.navbar .navbar-right button{
+    text-decoration:none;
+    border-style:none;
+    background:transparent;
+    font-size:1em;
+    margin:0;
+    vertical-align:middle;
+    cursor:pointer;
+    padding:1em;
+    transition: color 150ms;
+    font-weight:300;
+    
+}
+.navbar .navbar-right button:hover{
+    color:#09A7DB;
+}
+.navbar .navbar-right button:focus{
+    outline:none;
+}

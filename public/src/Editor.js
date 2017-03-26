@@ -4,12 +4,14 @@ import WaveformData from "waveform-data";
 import Tooltip from "./Tooltip";
 import Highlight from "./Highlight";
 import * as firebase from "firebase";
+import Navbar from "./Navbar";
 import request from "superagent";
 import './Editor.css';
-import './Components.css';
+import './App.css';
 import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.core.css';
 import ChangeMode from './ChangeMode.js';
+import Record from "react-icons/lib/md/adjust";
 
 class Editor extends Component {
   constructor(){
@@ -48,10 +50,17 @@ class Editor extends Component {
   componentDidMount(){
     this.setState({editor: this.refs.editor.getEditor()});
     const editor = this.refs.editor.getEditor();
+    const ctx = this;
     this.database.ref("users/"+this.uid+"/"+this.session).once('value').then(function (snapshot) {
       const data = snapshot.val() || {recordings: [], content: []};
       editor.setContents(data.content);
+      ctx.onResize();
     });
+    window.addEventListener('resize', this.onResize);
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener('resize', this.onResize);
   }
 
   stopTyping(content){
@@ -111,6 +120,14 @@ class Editor extends Component {
     }
   }
 
+  onResize(){
+    const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
+    const editorContainer = document.getElementsByClassName('ql-editor')[0];
+    toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
+    editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
+    editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
+  }
+
 /*
   var video_segments = [[0,6,"213"],[6,9,"264"]];
 
@@ -166,11 +183,14 @@ class Editor extends Component {
 
   render() {
     return (
-      <div className="container">
-        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
+      <div>
+        <Navbar>
+          <ChangeMode changeState={this.changeState.bind(this)}/>
+          <button><Record /></button> 
+        </Navbar>
+        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
         <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
-        <ChangeMode changeState={this.changeState.bind(this)}/>
       </div>
     )
   }

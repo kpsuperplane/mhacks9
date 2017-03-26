@@ -10,7 +10,7 @@ export default class Logout extends Component {
 
 	render () {
 		return (
-			<button type="submit" onClick={() => this.handleClick()} className="button">Logout</button>
+			<button onClick={() => this.handleClick()}>Logout</button>
 		)
 	}
 }

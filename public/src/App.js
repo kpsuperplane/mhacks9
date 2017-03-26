@@ -3,6 +3,7 @@ import Editor from "./Editor";
 import Login from "./Login";
 import Logout from "./Logout";
 import "./App.css";
+import "./Components.css";
 import * as firebase from "firebase";
 
 class App extends Component {
@@ -36,7 +37,7 @@ class App extends Component {
                 view = <Login />;
                 break;
             case true:
-                view = <div><Editor /><Logout /></div>;
+                view = <Editor />;
                 break;
         }
         return <div className="app">{view}</div>;
