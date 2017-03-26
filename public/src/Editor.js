@@ -12,12 +12,11 @@ import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.core.css';
 import ChangeMode from './ChangeMode.js';
 import Record from "react-icons/lib/md/adjust";
-import ReactAudioPlayer from 'react-audio-player';
 import RecordFill from "react-icons/lib/md/lens";
 
 class Editor extends Component {
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.state = {
       selected: null,
       editor: null,
@@ -26,22 +25,30 @@ class Editor extends Component {
       editMode: true,
       theDeltas: [],
       recordingLength: 0,
-      recording: false
+      recording: false,
+      lastSize: window.innerWidth
     }
-    this.audio_segments = [[0,6,"213"],[6,9,"264"]];
-    this.currentAudio = "";
+    this.video_segments = [[0,6,"213"],[6,9,"264"]];
+
     this.add_range = this.add_range.bind(this);
     this.shift_indexes = this.shift_indexes.bind(this);
 
     this.deltas = [];
     this.lastIndex = 0;
-    this.onResize = this.onResize.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
     this.database = firebase.database();
     this.uid = firebase.auth().currentUser.uid;
     this.recordingTimer = null;
-    this.session = localStorage.getItem("session") || (localStorage.setItem("session", (new Date()).getTime()), localStorage.getItem("session"));
+    if (this.props.session === "new") {
+	    this.session = new Date().getTime();
+    } else {
+	    this.session = this.props.session;
+    }
+    const ctx = this;
+    this.timeout = null;
+  }
+  componentWillMount(){
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
@@ -99,7 +106,6 @@ stopTyping(content){
   const curIndex = this.refs.editor.getEditor().getSelection().index;
   if(this.deltas.length > 0){
 
-    //var ranges = [];
     const ctx = this;
     this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
       var recordings = snapshot.val();
@@ -112,9 +118,6 @@ stopTyping(content){
       ctx.add_range(ctx.state.curRecordIndex, curIndex, ctx.currentAudio);
       console.log(ctx.audio_segments);
     });
-
-
-
 
     /*var fireBaseRef = this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").push();
     fireBaseRef.set({
@@ -142,6 +145,7 @@ onChange(content, delta, source, editor){
   this.lastIndex = this.refs.editor.getEditor().getSelection().index;
   this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
 }
+
 
 onChangeSelection(range, source, editor){
   if(range && Math.abs(this.lastIndex - range.index) > 10) this.stopTyping(editor.getContents());
@@ -225,31 +229,93 @@ add_range(first, last, video){
   }
 }
 
-onResize(){
-  const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
-  const editorContainer = document.getElementsByClassName('ql-editor')[0];
-  toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
-  editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
-  editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
-  this.forceUpdate();
-}
 
-render() {
-  return (
-    <div>
-    <Navbar>
-    <ChangeMode changeState={this.changeState.bind(this)}/>
-    <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
-    <ReactAudioPlayer src={this.currentAudio} autoPlay/>
-    <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
-    </Navbar>
-    <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
-    <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
-    <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
-    <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
-    </div>
-  )
-}
+
+  onResize(){
+    const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
+    const editorContainer = document.getElementsByClassName('ql-editor')[0];
+    toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
+    editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
+    editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
+    let selectedPosition = this.state.selectedPosition;
+    selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
+    this.setState({ lastSize: window.innerWidth, selectedPosition: selectedPosition });
+  }
+/*
+  var video_segments = [[0,6,"213"],[6,9,"264"]];
+
+  var shift_indexes = function(start_index, amount){
+    for(var i = start_index; i < video_segments.length; i++){
+      video_segments[i][0] += amount;
+      video_segments[i][1] += amount;
+    }
+  };
+
+
+  var delete_range = function(first, last){
+    var diff = last-first;
+    for(var i = 0 ; i < video_segments.length; i++){
+      var idx1 = video_segments[i][0];
+      var idx2 = video_segments[i][1];
+      if(first >= idx1 && last < idx2){
+        if(first == idx1){
+          if(diff == idx2 - idx1){
+            //this catches the case where the entire deletion makes up the entire segment
+          }else{
+            video_segments[i][1] = idx2 - diff;
+          }
+        }else{
+          video_segments[i][1] = idx2 - diff;
+          //delete the current range and proceed to shift everything left by n characters
+        }
+        shift_indexes(i+1, diff);
+      }
+    }
+    console.log(video_segments);
+  };
+
+
+  var add_range = function(first, last, video){
+    if(first == video_segments.length){//we are appending the new video clip to the end of the document
+      video_segments.push([first,last,video]);
+    }else{
+      for(var i = 0 ; i < video_segments.length; i++){
+        var idx1 = video_segments[i][0];
+        var idx2 = video_segments[i][1];
+        if(first >= idx1 && last < idx2){
+          //this shrinks the first range and then pushes two extra ranges to. (effectively a split)
+          video_segments[i][1] = first;
+          video_segments.push([first,last,video]);
+          video_segments.push([last,idx2 + 1,video_segments[i][2]]);
+        }
+      }
+    }
+  };*/
+
+
+
+  render() {
+    return (
+      <div>
+        <Navbar>
+          <ChangeMode changeState={this.changeState.bind(this)}/>
+          <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
+        </Navbar>
+        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
+        <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
+	{this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
+        <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
+
+      <form onSubmit={this.handleSubmit}>
+        <label>
+          ID:
+          <input type="text" value={this.state.value} onChange={this.handleChange} />
+        </label>
+        <input type="submit" value="Submit" />
+      </form>
+      </div>    );
+  }
+>>>>>>> 74b385e854e727ef976db004010d5b5c5c4ce0c2
 }
 
 export default Editor;
