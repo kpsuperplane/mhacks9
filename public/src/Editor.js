@@ -50,10 +50,11 @@ class Editor extends Component {
   componentDidMount(){
     this.setState({editor: this.refs.editor.getEditor()});
     const editor = this.refs.editor.getEditor();
+    const ctx = this;
     this.database.ref("users/"+this.uid+"/"+this.session).once('value').then(function (snapshot) {
       const data = snapshot.val() || {recordings: [], content: []};
       editor.setContents(data.content);
-      this.onResize();
+      ctx.onResize();
     });
     window.addEventListener('resize', this.onResize);
   }
@@ -120,8 +121,11 @@ class Editor extends Component {
   }
 
   onResize(){
+    const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
     const editorContainer = document.getElementsByClassName('ql-editor')[0];
-    editorContainer.styles.height = window.outerHeight - editorContainer.getBoundingClientRect().top;
+    toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
+    editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
+    editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
   }
 
 /*
@@ -184,12 +188,9 @@ class Editor extends Component {
           <ChangeMode changeState={this.changeState.bind(this)}/>
           <button><Record /></button> 
         </Navbar>
-        <div className="container">
-          <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow"/>
-          <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
-          <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
-          
-        </div>
+        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..."  theme="snow" />
+        <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
+        <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
       </div>
     )
   }

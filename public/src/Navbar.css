@@ -1,8 +1,12 @@
-,navbar{
+.navbar{
     font-size:1em;
+    background:#FFF;
+    position:relative;
+    z-index:10;
 }
 
 .navbar .inner-container{
+    margin:0 -8px;
 }
 
 .navbar h4{
