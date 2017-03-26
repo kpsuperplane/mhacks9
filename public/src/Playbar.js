@@ -35,6 +35,7 @@ class Playbar extends Component {
             if(firstPosition.top >= endIndexPosition.top) break;
             
         }
+        this.lines = lines;
         return <div>{lines}</div>;
     }
 }

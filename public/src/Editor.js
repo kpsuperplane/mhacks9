@@ -24,7 +24,13 @@ class Editor extends Component {
       selectedPosition: {x:0, y:0},
       editMode: true,
       theDeltas: [],
+<<<<<<< HEAD
       recordingLength: 0
+=======
+      recordingLength: 0,
+      recording: false,
+      lastSize: window.innerWidth
+>>>>>>> 443769f70e44d5d5f42acb3208159b58e07c3759
     }
     this.video_segments = [[0,6,"213"],[6,9,"264"]];
 
@@ -39,6 +45,10 @@ class Editor extends Component {
     this.uid = firebase.auth().currentUser.uid;
     this.recordingTimer = null;
     this.session = localStorage.getItem("session") || (localStorage.setItem("session", (new Date()).getTime()), localStorage.getItem("session"));
+    const ctx = this;
+    this.timeout = null;
+  }
+  componentWillMount(){
     const ctx = this;
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
@@ -120,14 +130,22 @@ class Editor extends Component {
     if(timeout === null){
       if(this.recorder.state === "recording") this.recorder.stop();
       recorder.start();
+      const curIndex = editor.getSelection().index - 1;
+      console.log(curIndex, this.lastIndex);
+      if(curIndex != this.lastIndex){
+        this.stopTyping(editor.getContents());
+        this.lastIndex = curIndex;
+        this.setState({curRecordIndex: curIndex});
+      }
     }
+    
     if(timeout !== null) clearTimeout(timeout);
     this.lastIndex = this.refs.editor.getEditor().getSelection().index;
     this.timeout = setTimeout(ctx.stopTyping.bind(ctx, editor.getContents()), 1000);
   }
 
   onChangeSelection(range, source, editor){
-    if(range && Math.abs(this.lastIndex - range.index) > 10) this.stopTyping(editor.getContents());
+    if(range && Math.abs(this.lastIndex - range.index) > 2) this.stopTyping(editor.getContents());
     if(range && range.length > 1){
       const content = editor.getText(range.index, range.length);
       const location = editor.getBounds(range.index, range.length);
@@ -206,6 +224,11 @@ class Editor extends Component {
     toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
     editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
     editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
+<<<<<<< HEAD
+=======
+    this.state.selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
+    this.setState({ lastSize: window.innerWidth });
+>>>>>>> 443769f70e44d5d5f42acb3208159b58e07c3759
   }
 /*
   var video_segments = [[0,6,"213"],[6,9,"264"]];
@@ -266,11 +289,16 @@ class Editor extends Component {
       <div>
         <Navbar>
           <ChangeMode changeState={this.changeState.bind(this)}/>
+<<<<<<< HEAD
           <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
+=======
+          <ReactAudioPlayer src={this.currentAudio} autoPlay/>
+          <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
+>>>>>>> 443769f70e44d5d5f42acb3208159b58e07c3759
         </Navbar>
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
-        <Tooltip editMode={this.state.editMode} content={this.state.selected} position={this.state.selectedPosition}/>
+	{this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
         <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
 
       <form onSubmit={this.handleSubmit}>
