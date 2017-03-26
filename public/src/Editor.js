@@ -21,7 +21,8 @@ class Editor extends Component {
       curRecordIndex: 0,
       selectedPosition: {x:0, y:0},
       editMode: true,
-      theDeltas: []
+      theDeltas: [],
+      video_segments: [[0,6,"213"],[6,9,"264"]]
     }
 
 
@@ -37,6 +38,11 @@ class Editor extends Component {
       ctx.recorder = new MediaRecorder(stream);
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
+          var hi = editor.getContents();
+          var changes = ctx.state.theDeltas;
+          for(var i = 0 ; i < changes.length; i ++){
+            //add_range(changes[i][0][]);
+          }
           console.log(res.body.webm_path);
           console.log(ctx.state.theDeltas);
           //console.log(this.refs.editor.getEditor().getContents());
@@ -109,6 +115,56 @@ class Editor extends Component {
       console.log(true);
     }
   }
+
+
+  shift_indexes(start_index, amount){
+    for(var i = start_index; i < this.state.video_segments.length; i++){
+      this.state.video_segments[i][0] += amount;
+      this.state.video_segments[i][1] += amount;
+    }
+  }
+
+  delete_range(first, last){
+    var diff = last-first;
+    for(var i = 0 ; i < this.state.video_segments.length; i++){
+      var idx1 = this.state.video_segments[i][0];
+      var idx2 = this.state.video_segments[i][1];
+      if(first >= idx1 && last < idx2){
+        if(first === idx1){
+          if(diff === idx2 - idx1){
+            //this catches the case where the entire deletion makes up the entire segment
+          }else{
+            this.state.video_segments[i][1] = idx2 - diff;
+          }
+        }else{
+          this.state.video_segments[i][1] = idx2 - diff;
+          //delete the current range and proceed to shift everything left by n characters
+        }
+        shift_indexes(i+1, diff);
+      }
+    }
+    console.log(this.state.video_segments);
+  }
+
+  add_range(first, last, video){
+    if(first === this.state.video_segments.length){//we are appending the new video clip to the end of the document
+      this.state.video_segments.push([first,last,video]);
+    }else{
+      for(var i = 0 ; i < this.state.video_segments.length; i++){
+        var idx1 = this.state.video_segments[i][0];
+        var idx2 = this.state.video_segments[i][1];
+        if(first >= idx1 && last < idx2){
+          //this shrinks the first range and then pushes two extra ranges to. (effectively a split)
+          this.state.video_segments[i][1] = first;
+          this.state.video_segments.push([first,last,video]);
+          this.state.video_segments.push([last,idx2 + 1,video_segments[i][2]]);
+        }
+      }
+    }
+  }
+
+
+
 
 /*
   var video_segments = [[0,6,"213"],[6,9,"264"]];
