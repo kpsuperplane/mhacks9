@@ -230,12 +230,8 @@ add_range(first, last, video){
     }
     this.shift_indexes(i+1, last-first);
   }
-<<<<<<< HEAD
-=======
 }
 
-
->>>>>>> 904ca59623b4ae132f9f5fc37e790c400444bcd0
 
   onResize(){
     const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
@@ -311,8 +307,7 @@ add_range(first, last, video){
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
 	{this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
-<<<<<<< HEAD
-=======
+
         <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
 
       <form onSubmit={this.handleSubmit}>
@@ -322,10 +317,8 @@ add_range(first, last, video){
         </label>
         <input type="submit" value="Submit" />
       </form>
->>>>>>> 904ca59623b4ae132f9f5fc37e790c400444bcd0
       </div>    );
   }
->>>>>>> 74b385e854e727ef976db004010d5b5c5c4ce0c2
 }
 
 export default Editor;

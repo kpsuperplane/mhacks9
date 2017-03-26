@@ -20,12 +20,13 @@ export default class Documents extends Component {
 		const {load} = this.props;
 		return (
 			<div>
+				<h2> Select a Document</h2>
 				{
 					Object.keys(this.state.documentsList).map(function(key, index) {
-						return <div key={key} onClick={() => load(key)}>{key}</div>
+						return <div key={key} onClick={() => load(key)} className="doc" ><span className="boop">Document {index + 1}</span></div>
 					})
 				}
-				<button class="button" onClick={() => load("new")}>New</button>
+				<a className="button" onClick={() => load("new")}>New</a>
 			</div>
 		)
 	}
