@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Editor from "./Editor";
+import Documents from "./Documents";
 import Login from "./Login";
 import Logout from "./Logout";
 import "./App.css";
@@ -15,7 +16,8 @@ class App extends Component {
             databaseURL: "https://mhacks9-bfe7d.firebaseio.com"
         });
         this.state = {
-            signedIn: firebase.auth().currentUser
+            signedIn: firebase.auth().currentUser,
+	    session: null
         }
 
     }
@@ -29,6 +31,9 @@ class App extends Component {
             }
         });
     }
+    load(key) {
+	this.setState({ session: key });
+    }
     render() {
         let view = null;
         switch(this.state.signedIn){
@@ -36,7 +41,7 @@ class App extends Component {
                 view = <Login />;
                 break;
             case true:
-                view = <Editor />;
+                view = this.state.session ? <Editor session={this.state.session} /> : <Documents load={this.load.bind(this)} />;
                 break;
         }
         return <div className="app">{view}</div>;

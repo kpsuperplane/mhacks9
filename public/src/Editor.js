@@ -15,9 +15,8 @@ import Record from "react-icons/lib/md/adjust";
 import RecordFill from "react-icons/lib/md/lens";
 
 class Editor extends Component {
-  constructor(){
-    super();
-
+  constructor(props){
+    super(props);
     this.state = {
       selected: null,
       editor: null,
@@ -41,7 +40,11 @@ class Editor extends Component {
     this.database = firebase.database();
     this.uid = firebase.auth().currentUser.uid;
     this.recordingTimer = null;
-    this.session = localStorage.getItem("session") || (localStorage.setItem("session", (new Date()).getTime()), localStorage.getItem("session"));
+    if (this.props.session === "new") {
+	    this.session = new Date().getTime();
+    } else {
+	    this.session = this.props.session;
+    }
     const ctx = this;
     this.timeout = null;
   }
