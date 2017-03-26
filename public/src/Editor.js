@@ -12,6 +12,7 @@ import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.core.css';
 import ChangeMode from './ChangeMode.js';
 import Record from "react-icons/lib/md/adjust";
+import RecordFill from "react-icons/lib/md/lens";
 
 class Editor extends Component {
   constructor(){
@@ -24,7 +25,8 @@ class Editor extends Component {
       selectedPosition: {x:0, y:0},
       editMode: true,
       theDeltas: [],
-      recordingLength: 0
+      recordingLength: 0,
+      recording: false
     }
     this.video_segments = [[0,6,"213"],[6,9,"264"]];
 
@@ -43,16 +45,16 @@ class Editor extends Component {
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
       ctx.recorder.addEventListener('start', () => {
-        ctx.setState({recordingLength: 0});
+        ctx.setState({recordingLength: 0, recording: true});
         ctx.recordingTimer = setInterval(() => ctx.setState({recordingLength: ctx.state.recordingLength + 1}), 1000);
       });
       ctx.recorder.addEventListener('stop', () => {
         clearInterval(ctx.recordingTimer);
-        ctx.setState({recordingLength: 0});
+        ctx.setState({recordingLength: 0, recording: false});
       })
       ctx.recorder.ondataavailable = (e) => {
         request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
-          const editor = this.refs.editor.getEditor();
+          const editor = ctx.refs.editor.getEditor();
           var hi = editor.getContents();
           var changes = ctx.state.theDeltas;
           for(var i = 0 ; i < changes.length; i ++){
@@ -60,7 +62,7 @@ class Editor extends Component {
           }
           console.log(res.body.webm_path);
           console.log(ctx.state.theDeltas);
-          console.log(this.refs.editor.getEditor().getContents());
+          console.log(ctx.refs.editor.getEditor().getContents());
         });
         new Audio(window.URL.createObjectURL(e.data)).play();
       }
@@ -95,6 +97,9 @@ class Editor extends Component {
     }
 
     const curIndex = this.refs.editor.getEditor().getSelection().index;
+    if(this.deltas.length > 0){
+      console.log(this.state.curRecordIndex, curIndex);
+    }
     this.deltas = [];
     this.lastIndex = curIndex;
     this.timeout = null;
@@ -255,7 +260,7 @@ class Editor extends Component {
       <div>
         <Navbar>
           <ChangeMode changeState={this.changeState.bind(this)}/>
-          <button><Record /> <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
+          <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
         </Navbar>
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
