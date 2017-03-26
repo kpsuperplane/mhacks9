@@ -13,6 +13,10 @@ import 'react-quill/dist/quill.core.css';
 import ChangeMode from './ChangeMode.js';
 import Record from "react-icons/lib/md/adjust";
 
+import ReactAudioPlayer from 'react-audio-player';
+import RecordFill from "react-icons/lib/md/lens";
+
+
 class Editor extends Component {
   constructor(){
     super();
@@ -73,18 +77,8 @@ class Editor extends Component {
     });
     this.timeout = null;
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(event) {
-    this.setState({value: event.target.value});
-  }
-
-  handleSubmit(event) {
-    console.log(this.state.value);
-    event.preventDefault();
-  }
   componentDidMount(){
     this.setState({editor: this.refs.editor.getEditor()});
     const editor = this.refs.editor.getEditor();
@@ -211,9 +205,6 @@ class Editor extends Component {
     this.shift_indexes(i+1, last-first);
   }
 
-
-
-
   onResize(){
     const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
     const editorContainer = document.getElementsByClassName('ql-editor')[0];
@@ -289,15 +280,6 @@ class Editor extends Component {
         <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
         <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
 	{this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
-        <ChangeMode changeState={this.changeState.bind(this)} editor={this.state.editor}/>
-
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          ID: 
-          <input type="text" value={this.state.value} onChange={this.handleChange} />
-        </label>
-        <input type="submit" value="Submit" />
-      </form>
       </div>    );
   }
 }
