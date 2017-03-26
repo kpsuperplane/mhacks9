@@ -13,7 +13,7 @@ class Tooltip extends Component {
     wolframRequest(query, callback) {
       request.get("https://mhacks.1lab.me/wolfram")
         .query({
-          query: query + " definition"
+          query: (query.indexOf(" ") == -1) ? (query + " definition") : query
         })
         .end(callback);
     }
