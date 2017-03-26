@@ -300,8 +300,6 @@ video_segments.push([last,idx2 + 1,video_segments[i][2]]);
 };*/
 
 
-
-<<<<<<< HEAD
 render() {
   return (
     <div>
@@ -323,21 +321,6 @@ render() {
     <input type="submit" value="Submit" />
     </form>
     </div>    );
-=======
-  render() {
-    return (
-      <div>
-        <Navbar>
-          <ChangeMode changeState={this.changeState.bind(this)}/>
-          <button className={"recording-indicator" + (this.state.recording ? " active" : "")}>{this.state.recordingLength % 2 == 0 ? <Record />:<RecordFill />} <span>{Math.floor(this.state.recordingLength/60)}:{(this.state.recordingLength%60 < 10 ? "0": "") + this.state.recordingLength%60}</span></button>
-	  <button onClick={() => this.props.exit()}>My Documents</button>
-        </Navbar>
-        <ReactQuill ref="editor" onChangeSelection={this.onChangeSelection} onChange={this.onChange} placeholder="Type notes here..." theme="snow" />
-        <Highlight data={this.database} curIndex={this.state.curRecordIndex} editor={this.state.editor} />
-	{this.state.editMode ? '' : <Tooltip content={this.state.selected} position={this.state.selectedPosition}/>}
-
-      </div>    );
->>>>>>> bf33c758e0cbc1e72242d7734f4aef8e2a4d5cff
   }
 }
 
