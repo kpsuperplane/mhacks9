@@ -64,7 +64,7 @@ class Editor extends Component {
         ctx.setState({recordingLength: 0, recording: false});
       });
       ctx.recorder.ondataavailable = (e) => {
-        request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
+        request.post("https://recap.1lab.me/audio").field("file", e.data).end(function(err, res){
           //const editor = ctx.refs.editor.getEditor();
           //var hi = editor.getContents();
           /*var changes = ctx.state.theDeltas;
@@ -120,7 +120,7 @@ stopTyping(content){
     }).bind(this);
   }
   if(this.recorder.state === "recording") this.recorder.stop();
-  this.recorder.start();
+  //this.recorder.start();
   for(var i = 0 ; i < this.deltas.length; i++){
     this.state.theDeltas.push(this.deltas[i]);
   }
@@ -185,11 +185,11 @@ onChangeSelection(range, source, editor){
 changeState(){
   if(this.state.editMode){
     this.setState({editMode: false});
-    this.editor.enable(false);
+    this.state.editor.enable(false);
     console.log(false);
   }else{
     this.setState({editMode: true});
-    this.editor.enable(true);
+    this.state.editor.enable(true);
     console.log(true);
   }
 }
