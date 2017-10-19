@@ -11,7 +11,7 @@ class Tooltip extends Component {
 	};
     }
     wolframRequest(query, callback) {
-      request.get("https://mhacks.1lab.me/wolfram")
+      request.get("https://recap.1lab.me/wolfram")
         .query({
           query: (query.indexOf(" ") == -1) ? (query + " definition") : query
         })
