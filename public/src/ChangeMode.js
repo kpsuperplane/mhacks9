@@ -10,9 +10,9 @@ export default class ChangeMode extends Component {
   //this.context.state = "Study";
   handleClick() {
     if(this.state.btn === "Study"){
-      this.setState({btn: "Edit"})
-    }else{
       this.setState({btn: "Study"})
+    }else{
+      this.setState({btn: "Edit"})
     }
     this.props.changeState();
   }
