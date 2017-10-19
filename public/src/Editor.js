@@ -64,7 +64,7 @@ class Editor extends Component {
         ctx.setState({recordingLength: 0, recording: false});
       });
       ctx.recorder.ondataavailable = (e) => {
-        request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
+        request.post("https://recap.1lab.me/audio").field("file", e.data).end(function(err, res){
           //const editor = ctx.refs.editor.getEditor();
           //var hi = editor.getContents();
           /*var changes = ctx.state.theDeltas;
