@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import * as firebase from 'firebase';
+import './Documents.css';
+import './Components.css';
 
 export default class Documents extends Component {
 	constructor(){
@@ -17,13 +19,14 @@ export default class Documents extends Component {
 	render() {
 		const {load} = this.props;
 		return (
-			<div>
+			<div className="docs">
+				<h2> Select a Document</h2>
 				{
 					Object.keys(this.state.documentsList).map(function(key, index) {
-						return <p key={key} onClick={() => load(key)}>{key}</p>
+						return <div key={key} onClick={() => load(key)} className="doc" ><span className="boop">Document {index + 1}</span></div>
 					})
 				}
-				<p onClick={() => load("new")}>new</p>
+				<a className="button" onClick={() => load("new")}>New</a>
 			</div>
 		)
 	}
