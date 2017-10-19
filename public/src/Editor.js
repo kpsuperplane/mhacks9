@@ -56,6 +56,7 @@ class Editor extends Component {
     navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
       ctx.recorder = new MediaRecorder(stream);
       ctx.recorder.addEventListener('start', () => {
+        console.log("recording");
         ctx.setState({recordingLength: 0, recording: true});
         ctx.recordingTimer = setInterval(() => ctx.setState({recordingLength: ctx.state.recordingLength + 1}), 1000);
       });
@@ -64,23 +65,25 @@ class Editor extends Component {
         ctx.setState({recordingLength: 0, recording: false});
       });
       ctx.recorder.ondataavailable = (e) => {
-        request.post("https://mhacks.1lab.me/audio").field("file", e.data).end(function(err, res){
-          //const editor = ctx.refs.editor.getEditor();
-          //var hi = editor.getContents();
-          /*var changes = ctx.state.theDeltas;
-          for(var i = 0 ; i < changes.length; i ++){
-          ctx.add_range(changes[i][0], changes[i][1], [res.body.webm_path]);
-          //console.log(changes[i]);
-        }*/
-        ctx.currentAudio = res.body.webm_path;
-        if(typeof ctx.saveAudio == "function"){
-          ctx.saveAudio();
-          ctx.saveAudio = null;
-        }
+        if(e.data.size != 0){
+          request.post("https://recap.1lab.me/audio").field("file", e.data).end(function(err, res){
+            //const editor = ctx.refs.editor.getEditor();
+            //var hi = editor.getContents();
+            /*var changes = ctx.state.theDeltas;
+            for(var i = 0 ; i < changes.length; i ++){
+            ctx.add_range(changes[i][0], changes[i][1], [res.body.webm_path]);
+            //console.log(changes[i]);
+          }*/
+          ctx.currentAudio = res.body.webm_path;
+          if(typeof ctx.saveAudio == "function"){
+            ctx.saveAudio();
+            ctx.saveAudio = null;
+          }
 
-        //console.log(ctx.audio_segments);
-        //console.log(this.refs.editor.getEditor().getContents());
-      });
+          //console.log(ctx.audio_segments);
+          //console.log(this.refs.editor.getEditor().getContents());
+        });
+      }
     }
   });
   this.timeout = null;
@@ -110,7 +113,6 @@ stopTyping(content){
     this.range = [this.state.curRecordIndex, curIndex];
     const ctx = this;
     ctx.saveAudio = (function(range){
-      console.log(ctx.currentAudio);
       var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").push();
       fireBaseRef.set({
         begin: ctx.range[0],
@@ -120,30 +122,29 @@ stopTyping(content){
     }).bind(this);
   }
   if(this.recorder.state === "recording") this.recorder.stop();
-  this.recorder.start();
   for(var i = 0 ; i < this.deltas.length; i++){
     this.state.theDeltas.push(this.deltas[i]);
   }
-    /*this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
-      var recordings = snapshot.val();
-      ctx.audio_segments = [[0,6,"asd"],[6,10,"asd"]];
-      for (var recording in recordings){
-        var curRec = recordings[recording];
-        ctx.audio_segments.push([curRec.begin,curRec.end,curRec.file]);
-      }
-      console.log(ctx.audio_segments);
-      ctx.add_range(range[0], range[1], ctx.currentAudio);
-      console.log(ctx.audio_segments);
-      var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").set({});
-      for(var curSeg of ctx.audio_segments){
-        var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").push();
-        fireBaseRef.set({
-          begin: curSeg[0],
-          end: curSeg[1],
-          file: curSeg[2]
-        });
-      }
-    });*/
+  /*this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
+  var recordings = snapshot.val();
+  ctx.audio_segments = [[0,6,"asd"],[6,10,"asd"]];
+  for (var recording in recordings){
+  var curRec = recordings[recording];
+  ctx.audio_segments.push([curRec.begin,curRec.end,curRec.file]);
+}
+console.log(ctx.audio_segments);
+ctx.add_range(range[0], range[1], ctx.currentAudio);
+console.log(ctx.audio_segments);
+var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").set({});
+for(var curSeg of ctx.audio_segments){
+var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").push();
+fireBaseRef.set({
+begin: curSeg[0],
+end: curSeg[1],
+file: curSeg[2]
+});
+}
+});*/
 this.deltas = [];
 this.lastIndex = curIndex;
 this.timeout = null;
@@ -156,7 +157,6 @@ onChange(content, delta, source, editor){
   const {recorder, timeout} = this;
   const ctx = this;
   if(timeout === null){
-    if(this.recorder.state === "recording") this.recorder.stop();
     recorder.start();
     const curIndex = editor.getSelection().index - 1;
     if(curIndex != this.lastIndex){
@@ -185,11 +185,11 @@ onChangeSelection(range, source, editor){
 changeState(){
   if(this.state.editMode){
     this.setState({editMode: false});
-    this.editor.enable(false);
+    this.state.editor.enable(false);
     console.log(false);
   }else{
     this.setState({editMode: true});
-    this.editor.enable(true);
+    this.state.editor.enable(true);
     console.log(true);
   }
 }
@@ -252,16 +252,16 @@ add_range(first, last, video){
 }
 
 
-  onResize(){
-    const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
-    const editorContainer = document.getElementsByClassName('ql-editor')[0];
-    toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
-    editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
-    editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
-    let selectedPosition = this.state.selectedPosition;
-    selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
-    this.setState({ lastSize: window.innerWidth, selectedPosition: selectedPosition });
-  }
+onResize(){
+  const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
+  const editorContainer = document.getElementsByClassName('ql-editor')[0];
+  toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
+  editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
+  editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
+  let selectedPosition = this.state.selectedPosition;
+  selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
+  this.setState({ lastSize: window.innerWidth, selectedPosition: selectedPosition });
+}
 /*
 var video_segments = [[0,6,"213"],[6,9,"264"]];
 
