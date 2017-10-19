@@ -22,7 +22,7 @@ houndify_key = config['mhacks']['houndify_key']
 ibm_username = config['mhacks']['ibm_username']
 ibm_password = config['mhacks']['ibm_password']
 microsoft = config['mhacks']['microsoft']
-google_credentials = open('google_credentials.json', 'r').read()
+# google_credentials = open('google_credentials.json', 'r').read()
 wolfram_appid = config['mhacks']['wolfram_appid']
 
 r = sr.Recognizer()
