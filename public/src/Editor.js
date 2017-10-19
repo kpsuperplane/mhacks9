@@ -32,9 +32,6 @@ class Editor extends Component {
       lastSize: window.innerWidth
     }
 
-    this.add_range = this.add_range.bind(this);
-    this.shift_indexes = this.shift_indexes.bind(this);
-
     this.deltas = [];
     this.lastIndex = 0;
     this.onChange = this.onChange.bind(this);
@@ -112,8 +109,8 @@ class Editor extends Component {
 
         this.database.ref("users/"+this.uid+"/"+this.session+"/timestamps").push({
 
-          startTime: this.state.curRecordTimestamp,
-          endTime: timeStamp,
+          //startTime: this.state.curRecordTimestamp,
+          //endTime: timeStamp,
           begin: ctx.range[0],
           end: ctx.range[1],
 
@@ -130,7 +127,12 @@ class Editor extends Component {
       curRecordTimestamp: timeStamp});*/
     }
 
+    startTyping(){
+      
+    }
+
     onChange(content, delta, source, editor){
+      //this.setstate({})
       if(source !== 'user') return;
       this.deltas.push(delta.ops);
       const {recorder, timeout} = this;
@@ -181,62 +183,6 @@ class Editor extends Component {
           this.setState({editMode: true});
           this.state.editor.enable(true);
           console.log(true);
-        }
-      }
-
-      shift_indexes(start_index, amount){
-        for(var i = start_index; i < this.audio_segments.length; i++){
-          this.audio_segments[i][0] += amount;
-          this.audio_segments[i][1] += amount;
-        }
-      }
-
-      delete_range(first, last){
-        var diff = last-first;
-        first = 0;
-        last = 5;
-        for(var i = 0 ; i < this.audio_segments.length; i++){
-          var idx1 = this.audio_segments[i][0];
-          var idx2 = this.audio_segments[i][1];
-          if(first >= idx1 && last < idx2){
-            if(first === idx1){
-              if(diff === idx2 - idx1){
-                //this catches the case where the entire deletion makes up the entire segment
-              }else{
-                this.audio_segments[i][1] = idx2 - diff;
-              }
-            }else{
-              this.audio_segments[i][1] = idx2 - diff;
-              //delete the current range and proceed to shift everything left by n characters
-            }
-            this.shift_indexes(i+1, diff);
-          }
-        }
-        console.log(this.audio_segments);
-      }
-      add_range(first, last, video){
-        console.log(first);
-        console.log(last);
-        if(last > first){
-          var charCount = this.refs.editor.getEditor().getLength() -1;
-          console.log(charCount);
-          if(last == charCount){//we are appending the new video clip to the end of the document
-            this.audio_segments.push([first,last,video]);
-            console.log("added");
-          }else{
-            console.log("added2");
-            for(var i = 0 ; i < this.audio_segments.length; i++){
-              var idx1 = this.audio_segments[i][0];
-              var idx2 = this.audio_segments[i][1];
-              if(first >= idx1 && last < idx2){
-                //this shrinks the first range and then pushes two extra ranges to. (effectively a split)
-                this.audio_segments[i][1] = first;
-                this.audio_segments.push([first,last,video]);
-                this.audio_segments.push([last,idx2 + 1,this.audio_segments[i][2]]);
-              }
-            }
-          }
-          this.shift_indexes(i+1, last-first);
         }
       }
       onResize(){

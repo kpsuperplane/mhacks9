@@ -22,9 +22,9 @@ class Playbar extends Component {
         if(state){
             this.audioObject.play();
         }else{
-            this.audioObject.pause();
-            this.audioObject.currentTime = 0;
-            this.audioObject.load();
+            //this.audioObject.pause();
+            //this.audioObject.currentTime = 0;
+            //this.audioObject.load();
         }
         this.setState({playing: !this.state.playing});
     }
