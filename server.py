@@ -22,7 +22,7 @@ houndify_key = config['mhacks']['houndify_key']
 ibm_username = config['mhacks']['ibm_username']
 ibm_password = config['mhacks']['ibm_password']
 microsoft = config['mhacks']['microsoft']
-google_credentials = open('google_credentials.json', 'r').read()
+#google_credentials = open('google_credentials.json', 'r').read()
 wolfram_appid = config['mhacks']['wolfram_appid']
 
 r = sr.Recognizer()
@@ -73,7 +73,7 @@ def audio():
         if file:
             filename = str(random.getrandbits(128))
             print(filename)
-            webm_path = os.path.join(upload_path, filename + ".webm")
+            webm_path = os.path.join(upload_path, "files/" + filename + ".webm")
             # flac_path = os.path.join(upload_path, filename + ".flac")
             file.save(webm_path)
             # os.system("ffmpeg -i {} -ar 16000 -ac 1 {}".format(webm_path, flac_path))
@@ -117,4 +117,4 @@ def audio():
         else:
             return 'No file'
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+    app.run(port=5001)

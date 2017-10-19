@@ -6,6 +6,7 @@
     border-radius:1.5px;
     background: #AAA;
     transition: all 150ms;
+    z-index: 10;
 }
 .toggle-play{
     position:absolute;
