@@ -110,7 +110,6 @@ stopTyping(content){
     this.range = [this.state.curRecordIndex, curIndex];
     const ctx = this;
     ctx.saveAudio = (function(range){
-      console.log(ctx.currentAudio);
       var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").push();
       fireBaseRef.set({
         begin: ctx.range[0],
