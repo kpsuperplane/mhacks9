@@ -75,7 +75,7 @@ class Editor extends Component {
           //console.log(changes[i]);
         }*/
         ctx.currentAudio = res.body.webm_path;
-        if(typeof ctx.saveAudio == "function"){
+        if(typeof ctx.saveAudio === "function"){
           ctx.saveAudio();
           ctx.saveAudio = null;
         }
@@ -90,12 +90,12 @@ class Editor extends Component {
 
 handleKeyDown(event) {
   let charCode = String.fromCharCode(event.which).toLowerCase();
-  if(event.ctrlKey && charCode === 'q') {
+  if(event.ctrlKey && event.shiftKey && charCode === 'e') {
     console.log("changed");
     this.changeState();
   }
   //mac
-  if(event.metaKey && charCode === 'q') {
+  if(event.metaKey && event.shiftKey && charCode === 'e') {
     console.log("changed");
     this.changeState();
   }
@@ -135,7 +135,7 @@ stopTyping(content){
           end: ctx.range[1],
           file: ctx.currentAudio
         });
-      }).bind(this);
+      });
     }
 
     if(this.recorder.state === "recording") this.recorder.stop();
