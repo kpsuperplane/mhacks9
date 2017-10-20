@@ -40,6 +40,8 @@ class Editor extends Component {
     this.lastIndex = 0;
     this.onChange = this.onChange.bind(this);
     this.onChangeSelection = this.onChangeSelection.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    //this.changeState = this.changeState.bind(this);
     this.database = firebase.database();
     this.uid = firebase.auth().currentUser.uid;
     this.recordingTimer = null;
@@ -86,7 +88,21 @@ class Editor extends Component {
   this.timeout = null;
 }
 
+handleKeyDown(event) {
+  let charCode = String.fromCharCode(event.which).toLowerCase();
+  if(event.ctrlKey && charCode === 'q') {
+    console.log("changed");
+    this.changeState();
+  }
+  //mac
+  if(event.metaKey && charCode === 'q') {
+    console.log("changed");
+    this.changeState();
+  }
+}
+
 componentDidMount(){
+  document.addEventListener("keydown", this.handleKeyDown, false);
   this.setState({editor: this.refs.editor.getEditor()});
   const editor = this.refs.editor.getEditor();
   const ctx = this;
@@ -105,49 +121,55 @@ componentWillUnmount(){
 stopTyping(content){
   if(this.timeout !== null) clearTimeout(this.timeout);
   this.database.ref("users/"+this.uid+"/"+this.session+"/content").set(content.ops);
-  const curIndex = this.refs.editor.getEditor().getSelection().index;
-  if(this.deltas.length > 0){
-    this.range = [this.state.curRecordIndex, curIndex];
-    const ctx = this;
-    ctx.saveAudio = (function(range){
-      console.log(ctx.currentAudio);
-      var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").push();
-      fireBaseRef.set({
-        begin: ctx.range[0],
-        end: ctx.range[1],
-        file: ctx.currentAudio
-      });
-    }).bind(this);
-  }
-  if(this.recorder.state === "recording") this.recorder.stop();
-  this.recorder.start();
-  for(var i = 0 ; i < this.deltas.length; i++){
-    this.state.theDeltas.push(this.deltas[i]);
-  }
-    /*this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
-      var recordings = snapshot.val();
-      ctx.audio_segments = [[0,6,"asd"],[6,10,"asd"]];
-      for (var recording in recordings){
-        var curRec = recordings[recording];
-        ctx.audio_segments.push([curRec.begin,curRec.end,curRec.file]);
-      }
-      console.log(ctx.audio_segments);
-      ctx.add_range(range[0], range[1], ctx.currentAudio);
-      console.log(ctx.audio_segments);
-      var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").set({});
-      for(var curSeg of ctx.audio_segments){
+  var refToEditor = this.refs.editor.getEditor().getSelection();
+  if(refToEditor != undefined){
+    const curIndex = refToEditor.index;
+    if(this.deltas.length > 0){
+      this.range = [this.state.curRecordIndex, curIndex];
+      const ctx = this;
+      ctx.saveAudio = (function(range){
+        console.log(ctx.currentAudio);
         var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").push();
         fireBaseRef.set({
-          begin: curSeg[0],
-          end: curSeg[1],
-          file: curSeg[2]
+          begin: ctx.range[0],
+          end: ctx.range[1],
+          file: ctx.currentAudio
         });
-      }
-    });*/
+      }).bind(this);
+    }
+
+    if(this.recorder.state === "recording") this.recorder.stop();
+    if(this.state.editMode){
+      this.recorder.start();
+    }
+    for(var i = 0 ; i < this.deltas.length; i++){
+      this.state.theDeltas.push(this.deltas[i]);
+    }
+    /*this.database.ref("users/"+this.uid+"/"+this.session+"/recordings").once("value",function(snapshot) {
+    var recordings = snapshot.val();
+    ctx.audio_segments = [[0,6,"asd"],[6,10,"asd"]];
+    for (var recording in recordings){
+    var curRec = recordings[recording];
+    ctx.audio_segments.push([curRec.begin,curRec.end,curRec.file]);
+  }
+  console.log(ctx.audio_segments);
+  ctx.add_range(range[0], range[1], ctx.currentAudio);
+  console.log(ctx.audio_segments);
+  var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").set({});
+  for(var curSeg of ctx.audio_segments){
+  var fireBaseRef = ctx.database.ref("users/"+ctx.uid+"/"+ctx.session+"/recordings").push();
+  fireBaseRef.set({
+  begin: curSeg[0],
+  end: curSeg[1],
+  file: curSeg[2]
+});
+}
+});*/
 this.deltas = [];
 this.lastIndex = curIndex;
 this.timeout = null;
 this.setState({curRecordIndex: curIndex});
+}
 }
 
 onChange(content, delta, source, editor){
@@ -185,11 +207,12 @@ onChangeSelection(range, source, editor){
 changeState(){
   if(this.state.editMode){
     this.setState({editMode: false});
-    this.editor.enable(false);
+    this.state.editor.enable(false);
+    if(this.recorder.state === "recording") this.recorder.stop();
     console.log(false);
   }else{
     this.setState({editMode: true});
-    this.editor.enable(true);
+    this.state.editor.enable(true);
     console.log(true);
   }
 }
@@ -252,16 +275,16 @@ add_range(first, last, video){
 }
 
 
-  onResize(){
-    const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
-    const editorContainer = document.getElementsByClassName('ql-editor')[0];
-    toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
-    editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
-    editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
-    let selectedPosition = this.state.selectedPosition;
-    selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
-    this.setState({ lastSize: window.innerWidth, selectedPosition: selectedPosition });
-  }
+onResize(){
+  const toolbarContainer = document.getElementsByClassName('ql-toolbar')[0];
+  const editorContainer = document.getElementsByClassName('ql-editor')[0];
+  toolbarContainer.style.padding = "0 " + Math.max(10, window.innerWidth/2 - 400) + "px 10px";
+  editorContainer.style.padding = "15px " + Math.max(10, window.innerWidth/2 - 390) + "px";
+  editorContainer.style.height = (window.innerHeight - editorContainer.getBoundingClientRect().top)+"px";
+  let selectedPosition = this.state.selectedPosition;
+  selectedPosition.x += (window.innerWidth - this.state.lastSize) / 2;
+  this.setState({ lastSize: window.innerWidth, selectedPosition: selectedPosition });
+}
 /*
 var video_segments = [[0,6,"213"],[6,9,"264"]];
 
